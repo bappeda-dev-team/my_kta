@@ -6,7 +6,8 @@ import { ChevronDown, ChevronRight, LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function Sidebar() {
-    const [rekapOpen, setRekapOpen] = useState(false)
+    const [rekapOpen, setRekapOpen] = useState<boolean>(false);
+    const [VerifikasiOpen, setVerifikasiOpen] = useState<boolean>(false);
     const router = useRouter()
 
     const handleLogout = () => {
@@ -21,13 +22,13 @@ export default function Sidebar() {
             <h2 className="text-xl font-bold text-purple-600 mb-6">Halaman Admin</h2>
             <div>
                 <button
-                    onClick={() => setRekapOpen(!rekapOpen)}
+                    onClick={() => setVerifikasiOpen(!VerifikasiOpen)}
                     className="flex items-center space-x-2 p-2 rounded hover:bg-purple-500 w-full justify-between">
                     <span>Verifikasi</span>
-                    {rekapOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    {VerifikasiOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                 </button>
 
-                {rekapOpen && (
+                {VerifikasiOpen && (
                     <div className="ml-4 space-y-2">
                         <Link href="/admin/verifikasi/registrasi" className="flex items-center space-x-2 rounded hover:bg-purple-500">
                             Data Registrasi

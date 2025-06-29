@@ -1,6 +1,7 @@
-const Tabel = () => {
+const TabelOrganisasi = () => {
   return (
     <div className="overflow-x-auto">
+      <p>table organisasi</p>
       <table className="min-w-full bg-white">
         <thead>
           <tr>
@@ -18,4 +19,4 @@ const Tabel = () => {
     </div>
   );
 }
-export default Tabel;
+export default TabelOrganisasi;
