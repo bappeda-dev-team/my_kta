@@ -36,7 +36,7 @@ export default function Sidebar() {
                         <Link href="/admin/verifikasi/pengajuan_kta" className="flex items-center space-x-2 rounded hover:bg-purple-500">
                             Pengajuan KTA
                         </Link>
-                        <Link href="/admin/verifikasi/pengajuan" className="flex items-center space-x-2 rounded hover:bg-purple-500">
+                        <Link href="/admin/verifikasi/pengajuan-izin" className="flex items-center space-x-2 rounded hover:bg-purple-500">
                             Pengajuan Izin Rekomendasi
                         </Link>
                     </div>

@@ -1,15 +1,16 @@
 const TabelSeniman = () => {
   return (
     <div className="overflow-x-auto">
-      <p>table seniman</p>
-      <table className="min-w-full bg-white">
+      <table className="w-full bg-white">
         <thead>
           <tr>
             <th className="py-2 px-4 border-b">No</th>
             <th className="py-2 px-4 border-b">Nama</th>
-            <th className="py-2 px-4 border-b">Email</th>
-            <th className="py-2 px-4 border-b">Status</th>
-            <th className="py-2 px-4 border-b">Aksi</th>
+            <th className="py-2 px-4 border-b">Tempat, Tanggal Lahir</th>
+            <th className="py-2 px-4 border-b">Jenis Kelamin</th>
+            <th className="py-2 px-4 border-b">Alamat</th>
+            <th className="py-2 px-4 border-b">Jenis Profesi</th>
+            <th className="py-2 px-4 border-b">Verifikasi</th>
           </tr>
         </thead>
         <tbody>

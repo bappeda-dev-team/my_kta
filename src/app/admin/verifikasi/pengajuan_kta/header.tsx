@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
+import TabelSenimanKTA from './tabelSenimanKTA'; // Assuming TabelSenimanKTA is a component that displays the data in a table format
+import TabelOrganisasiKTA from './tabelOrganisasiKTA'; // Assuming TabelOrganisasiKTA is a component that displays the data in a table format
 
 // Main App component
 const HeaderPengajuanKTA = () => {
   // State to track which button is currently active
   const [activeButton, setActiveButton] = useState('home'); // Default active to 'home' or a more general initial state
-
   // Function called when a navigation button is clicked
   const handleNavClick = (buttonName: any) => {
     setActiveButton(buttonName);
@@ -13,10 +14,10 @@ const HeaderPengajuanKTA = () => {
   };
 
   return (
-    // Main container with flexbox styling for centering and a pleasant background
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center justify-start py-8 px-4 sm:px-6 lg:px-8 font-sans">
+   // Main container with flexbox styling for centering and a pleasant background
+    <div className="min-h-screen mx-2 w-full bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center justify-start font-sans">
       {/* Main application header */}
-      <header className="w-full max-w-6xl bg-white shadow-xl rounded-2xl p-6 mb-12 border-b-4 border-purple-500">
+      <header className="w-full bg-white shadow-xl rounded-2xl p-6 mb-3 border-b-4 border-purple-500">
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Main Title/Logo */}
 
@@ -62,29 +63,19 @@ const HeaderPengajuanKTA = () => {
       </header>
 
       {/* Dynamic content based on active button (optional) */}
-      <main className="w-full max-w-4xl bg-white shadow-lg rounded-xl p-8 text-center border-l-4 border-r-4 border-blue-400">
+      <main className="w-full mx-2 bg-white shadow-lg rounded-xl p-8 text-center border-l-4 border-r-4 border-blue-400">
         {activeButton === 'home' && (
           <p className="text-gray-700 text-lg">
-            Selamat datang di Sistem Pengajuan. Silakan pilih opsi di navigasi.
-          </p>
-        )}
-        {activeButton === 'pengajuan' && (
-          <p className="text-gray-700 text-lg">
-            Halaman untuk pengajuan umum. Silakan pilih "Pelaku Seni" atau "Organisasi" untuk pengajuan spesifik.
+            Selamat datang di Sistem Pengajuan Kartu Tanda Anggota.
           </p>
         )}
         {activeButton === 'pelakuSeni' && (
-          <p className="text-gray-700 text-lg">
-            Anda sedang melihat halaman pengajuan untuk <span className="font-bold text-purple-600">Pelaku Seni</span>.
-            Formulir atau informasi terkait akan ditampilkan di sini.
-          </p>
+          <TabelSenimanKTA />
         )}
         {activeButton === 'organisasi' && (
-          <p className="text-gray-700 text-lg">
-            Anda sedang melihat halaman pengajuan untuk <span className="font-bold text-purple-600">Organisasi</span>.
-            Formulir atau informasi terkait akan ditampilkan di sini.
-          </p>
+          <TabelOrganisasiKTA />
         )}
+        
       </main>
     </div>
   );

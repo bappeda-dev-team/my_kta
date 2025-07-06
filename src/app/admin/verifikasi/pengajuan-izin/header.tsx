@@ -20,9 +20,9 @@ const HeaderPengajuan = () => {
 
   return (
     // Main container with flexbox styling for centering and a pleasant background
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center justify-start font-sans">
+    <div className="min-h-screen mx-2 w-full bg-gradient-to-br from-blue-50 to-purple-100 flex flex-col items-center justify-start font-sans">
       {/* Main application header */}
-      <header className="w-full bg-white shadow-xl rounded-2xl p-6 mb-12 border-b-4 border-purple-500">
+      <header className="w-full bg-white shadow-xl rounded-2xl p-6 mb-3 border-b-4 border-purple-500">
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Main Title/Logo */}
 
@@ -56,7 +56,7 @@ const HeaderPengajuan = () => {
       </header>
 
       {/* Dynamic content based on active button (optional) */}
-      <main className="w-full max-w-4xl bg-white shadow-lg rounded-xl p-8 text-center border-l-4 border-r-4 border-blue-400">
+      <main className="w-full mx-2 bg-white shadow-lg rounded-xl p-8 text-center border-l-4 border-r-4 border-blue-400">
         {activeButton === 'pengajuan' && (
           <p className="text-gray-700 text-lg">
             Halaman untuk pengajuan umum. Silakan pilih "Pelaku Seni" atau "Organisasi" untuk pengajuan spesifik.
