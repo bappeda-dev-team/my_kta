@@ -44,12 +44,33 @@ export default function tabelSenimanKTA() {
                 [type]: url
             }
         }));
-        // Anda bisa menambahkan logika untuk menyimpan URL foto ini ke backend di sini
+        // menambahkan logika untuk menyimpan URL foto ini ke backend di sini
     };
 
-    // Fungsi untuk menangani pencetakan halaman (masih mencetak seluruh halaman)
-    const handlePrint = () => {
-        window.print(); // Memanggil fungsi cetak bawaan browser
+    // Tipe data untuk item
+    type DataItem = {
+        id: number;
+        name: string;
+        TTL: string;
+        jeniskelamin: string;
+        alamat: string;
+        profesi: string;
+        ktpPhoto: string;
+        threeByFourPhoto: string;
+        status: string;
+    };
+
+    // State untuk data item yang akan dicetak sebagai kartu
+    const [itemToPrint, setItemToPrint] = useState<DataItem | null>(null);
+
+    // Fungsi untuk menangani pencetakan kartu
+    const handlePrintCard = (item: any) => {
+        setItemToPrint(item); // Set item yang akan dicetak
+        // Beri sedikit jeda agar React memiliki waktu untuk merender kartu sebelum mencetak
+        setTimeout(() => {
+            window.print();
+            setItemToPrint(null); // Reset setelah dialog cetak dimulai
+        }, 100);
     };
 
     return (
@@ -69,6 +90,18 @@ export default function tabelSenimanKTA() {
             }
             body {
               background-color: #fff;
+            }
+            .print-only-card .card-container {
+              width: 3.38in; /* Ukuran kartu standar (approx. 85.6mm) */
+              height: 2.12in; /* Ukuran kartu standar (approx. 53.98mm) */
+              border: 1px solid #ccc; /* Border untuk kartu saat dicetak */
+              padding: 0.25in; /* Padding untuk konten kartu */
+              box-sizing: border-box; /* Pastikan padding termasuk dalam ukuran */
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              align-items: center;
+              font-size: 8pt; /* Ukuran font lebih kecil untuk kartu */
             }
             table {
               width: 100%;
@@ -162,16 +195,16 @@ export default function tabelSenimanKTA() {
                                             {verificationStatus[item.id] ? 'Batalkan Verifikasi' : 'Verifikasi'}
                                         </button>
                                         <button
-                                            onClick={handlePrint}
+                                            onClick={() => handlePrintCard(item)}
                                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105"
                                         >
                                             {/* Ikon Printer dari Lucide React atau SVG inline */}
-                                            <svg xmlns="http://www.w3.org/20+09okx00/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
                                                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                                                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                                                 <rect x="6" y="14" width="12" height="8"></rect>
                                             </svg>
-                                            Cetak
+                                            Cetak Kartu
                                         </button>
                                     </td>
                                 </tr>
@@ -180,7 +213,27 @@ export default function tabelSenimanKTA() {
                     </table>
                 </div>
 
-                {/* Tombol Cetak global telah dihapus dari sini */}
+                {/* Kartu yang akan dicetak - Hanya terlihat saat itemToPrint tidak null dan saat dicetak */}
+                {itemToPrint && (
+                    <div className="print-only-card fixed inset-0 flex items-start justify-right bg-white z-50 p-4">
+                        <div className="card-container border border-gray-300 rounded-lg shadow-lg p-6 bg-white flex flex-col items-center justify-center">
+                            <h2 className="text-xl font-bold mb-2 text-center">{itemToPrint.name}</h2>
+                            <div className="flex justify-center mb-4">
+                                {photos[itemToPrint.id]?.threeByFour ? (
+                                    <img src={photos[itemToPrint.id].threeByFour} alt="Foto 3x4" className="w-24 h-32 object-cover border-2 border-gray-300" />
+                                ) : (
+                                    <img src="https://placehold.co/96x128/E0E0E0/555555?text=3x4" alt="Placeholder 3x4" className="w-24 h-32 object-cover border-2 border-gray-300" />
+                                )}
+                            </div>
+                            <div className="text-sm text-gray-700 text-center">
+                                <p className="mb-1"><span className="font-semibold">Tempat/Tgl Lahir:</span> {itemToPrint.TTL}</p>
+                                <p className="mb-1"><span className="font-semibold">Jenis Kelamin:</span> {itemToPrint.jeniskelamin}</p>
+                                <p className="mb-1"><span className="font-semibold">Alamat:</span> {itemToPrint.alamat}</p>
+                                <p className="mb-1"><span className="font-semibold">Profesi:</span> {itemToPrint.profesi}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

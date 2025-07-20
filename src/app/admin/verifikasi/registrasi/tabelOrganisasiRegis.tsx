@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 export default function TabelOrganisasiRegis() {
   // Contoh data untuk tabel
   const [data, setData] = useState([
-    { id: 1, name: 'Ajinomoto', email: 'ajinomoto@gmail.com', password: '123456',nomor_hp: '089000000',pilihan: 'Organisasi', status: 'Pending' },
+    { id: 1, name: 'Ajinomoto', password: '123456',nomor_hp: '089000000',pilihan: 'Organisasi', status: 'Pending' },
   ]);
 
   // State untuk melacak status verifikasi per item
@@ -72,8 +72,7 @@ export default function TabelOrganisasiRegis() {
             <thead className="bg-gray-50">
               <tr>
                 <th scope="col" className="px-6 py-3 text-center min-w-[50px] text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">ID</th>
-                <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
-                <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
                 <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Password</th>
                 <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Telepon / WhatsApps</th>                
                 <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Pilihan</th>
@@ -86,7 +85,6 @@ export default function TabelOrganisasiRegis() {
                 <tr key={item.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">{item.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.password}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.nomor_hp}</td>                  
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.pilihan}</td>                  

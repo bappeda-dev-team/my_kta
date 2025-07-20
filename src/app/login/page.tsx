@@ -61,7 +61,7 @@ export default function LoginPage() {
 
         <button
           type="button"
-          onClick={() => Router.push("/pendaftaran/seniman")}
+          onClick={() => Router.push("/pendaftaran")}
           className="w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-800 transition">
           Login
         </button>

@@ -14,7 +14,7 @@ export default function SignUpPage() {
         <form className="space-y-5">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Nama Lengkap
+              Username
             </label>
             <input
               type="text"
@@ -22,19 +22,6 @@ export default function SignUpPage() {
               required
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Masukkan Nama Lengkap Anda"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              required
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Masukkan Email Anda"
             />
           </div>
 

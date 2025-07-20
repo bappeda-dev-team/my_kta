@@ -146,7 +146,8 @@ export default function PendaftaranSeniman() {
                     </div>
 
                     <button
-                        type="submit" // Changed to type="submit" to trigger handleSubmit
+                        type="button"
+                       onClick={() => router.push('/verifikasi_daftar')}
                         className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
                     >
                         Daftar

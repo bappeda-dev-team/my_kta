@@ -4,7 +4,27 @@ import React, { useState, useEffect } from 'react';
 export default function TabelOrganisasiKTA() {
     // Contoh data untuk tabel
     const [data, setData] = useState([
-        { id: 1, name: 'Setyo Wibowo', TTL: 'Madiun, 01-01-1999', jeniskelamin: 'Laki-laki', alamat: 'Madiun', induk: 'Pencak Silat', jumlah: '10', ktpPhoto: '', threeByFourPhoto: '', status: 'Pending' },
+        {
+            id: 1,
+            name: 'Setyo Wibowo',
+            TTL: 'Madiun, 01-01-1999',
+            jeniskelamin: 'Laki-laki',
+            alamat: 'Madiun',
+            induk: 'Pencak Silat',
+            jumlah: '10',
+            ktpPhoto: '',
+            threeByFourPhoto: '',
+            status: 'Pending',
+            nomorInduk: '400.6/81/404.301/PB/12/2025',
+            kabupaten: 'NGAWI',
+            berlakuTgl: '22 JANUARI 2025',
+            sampaiTgl: '31 DESEMBER 2026',
+            indukOrganisasi: 'PAGUYUBAN BUDAYA PAGUYUBAN KAWULA KARATON SURAKARTA " PAKASA "',
+            jumlahAnggota: '150 ORANG',
+            kepalaDinas: 'Kepala Dinas Pendidikan Dan Kebudayaan Kabupaten Ngawi',
+            pembinaUtamaMuda: 'SUMARSONO,SH.M.SI',
+            nip: '1969070519903 1 012',
+        },
     ]);
 
     // State untuk melacak status verifikasi per item
