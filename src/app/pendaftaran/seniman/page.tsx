@@ -4,6 +4,7 @@ import { useState } from 'react';
 import HeaderUser from '@/component/global/header-seni';
 import Router from 'next/navigation';
 
+
 export default function PendaftaranSeniman() {
     const [nama, setNama] = useState('');
     const [jenisKelamin, setJenisKelamin] = useState('');

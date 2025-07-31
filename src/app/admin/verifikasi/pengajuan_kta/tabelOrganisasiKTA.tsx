@@ -5,13 +5,7 @@ export default function TabelOrganisasiKTA() {
     // Contoh data untuk tabel
     const [data, setData] = useState([
         {
-            id: 1,
-            name: 'Setyo Wibowo',
-            TTL: 'Madiun, 01-01-1999',
-            jeniskelamin: 'Laki-laki',
-            alamat: 'Madiun',
-            induk: 'Pencak Silat',
-            jumlah: '10',
+            id: 1, name: 'Setyo Wibowo', TTL: 'Madiun, 01-01-1999', jeniskelamin: 'Laki-laki', alamat: 'Madiun', induk: 'Pencak Silat', jumlah: '10',
             ktpPhoto: '',
             threeByFourPhoto: '',
             status: 'Pending',
@@ -19,7 +13,7 @@ export default function TabelOrganisasiKTA() {
             kabupaten: 'NGAWI',
             berlakuTgl: '22 JANUARI 2025',
             sampaiTgl: '31 DESEMBER 2026',
-            indukOrganisasi: 'PAGUYUBAN BUDAYA PAGUYUBAN KAWULA KARATON SURAKARTA " PAKASA "',
+            indukOrganisasi: 'Pencak Silat',
             jumlahAnggota: '150 ORANG',
             kepalaDinas: 'Kepala Dinas Pendidikan Dan Kebudayaan Kabupaten Ngawi',
             pembinaUtamaMuda: 'SUMARSONO,SH.M.SI',
@@ -67,10 +61,32 @@ export default function TabelOrganisasiKTA() {
         // menambahkan logika untuk menyimpan URL foto ini ke backend di sini
     };
 
+    // Tipe data untuk item
+    type DataItem = {
+        id: number;
+        name: string;
+        TTL: string;
+        jeniskelamin: string;
+        alamat: string;
+        indukOrganisasi: string;
+        jumlahAnggota: string;
+        ktpPhoto: string;
+        threeByFourPhoto: string;
+        status: string;
+    };
 
-    // Fungsi untuk menangani pencetakan halaman (masih mencetak seluruh halaman)
-    const handlePrint = () => {
-        window.print(); // Memanggil fungsi cetak bawaan browser
+
+    // State untuk data item yang akan dicetak sebagai kartu
+    const [itemToPrint, setItemToPrint] = useState<DataItem | null>(null);
+
+    // Fungsi untuk menangani pencetakan kartu
+    const handlePrintCard = (item: any) => {
+        setItemToPrint(item); // Set item yang akan dicetak
+        // Beri sedikit jeda agar React memiliki waktu untuk merender kartu sebelum mencetak
+        setTimeout(() => {
+            window.print();
+            setItemToPrint(null); // Reset setelah dialog cetak dimulai
+        }, 100);
     };
 
     return (
@@ -185,7 +201,7 @@ export default function TabelOrganisasiKTA() {
                                             {verificationStatus[item.id] ? 'Batalkan Verifikasi' : 'Verifikasi'}
                                         </button>
                                         <button
-                                            onClick={handlePrint}
+                                            onClick={() => handlePrintCard(item)}
                                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105"
                                         >
                                             {/* Ikon Printer dari Lucide React atau SVG inline */}
@@ -203,7 +219,30 @@ export default function TabelOrganisasiKTA() {
                     </table>
                 </div>
 
-                {/* Tombol Cetak global telah dihapus dari sini */}
+                {/* Kartu yang akan dicetak - Hanya terlihat saat itemToPrint tidak null dan saat dicetak */}
+                {itemToPrint && (
+                    <div className="print-only-card fixed inset-0 flex items-start justify-right bg-white z-50 p-4">
+                        <div className="card-container border border-gray-300 rounded-lg shadow-lg p-6 bg-white flex flex-col items-center justify-center">
+                            <h2 className="text-xl font-bold mb-2 text-center">{itemToPrint.name}</h2>
+                            <div className="flex justify-center mb-4">
+                                {photos[itemToPrint.id]?.threeByFour ? (
+                                    <img src={photos[itemToPrint.id].threeByFour} alt="Foto 3x4" className="w-24 h-32 object-cover border-2 border-gray-300" />
+                                ) : (
+                                    <img src="https://placehold.co/96x128/E0E0E0/555555?text=3x4" alt="Placeholder 3x4" className="w-24 h-32 object-cover border-2 border-gray-300" />
+                                )}
+                            </div>
+                            <div className="text-sm text-gray-700 text-center">
+                                <p className="mb-1"><span className="font-semibold">Tempat/Tgl Lahir:</span> {itemToPrint.TTL}</p>
+                                <p className="mb-1"><span className="font-semibold">Jenis Kelamin:</span> {itemToPrint.jeniskelamin}</p>
+                                <p className="mb-1"><span className="font-semibold">Alamat:</span> {itemToPrint.alamat}</p>
+                                <p className="mb-1"><span className="font-semibold">Induk Organisasi:</span> {itemToPrint.indukOrganisasi}</p>
+                                <p className="mb-1"><span className="font-semibold">Jumlah Anggota:</span> {itemToPrint.jumlahAnggota}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </main>
         </div>
     );

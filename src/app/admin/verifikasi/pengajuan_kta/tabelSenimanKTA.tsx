@@ -73,6 +73,42 @@ export default function tabelSenimanKTA() {
         }, 100);
     };
 
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedItemForRejection, setSelectedItemForRejection] = useState<DataItem | null>(null); // Menyimpan item yang sedang ditolak
+
+    // State untuk notifikasi (pesan dan tipe: 'success' atau 'error')
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
+
+    // Fungsi untuk menampilkan pesan notifikasi
+    const showNotification = (msg: string, type: string) => {
+        setMessage(msg);
+        setMessageType(type);
+        setTimeout(() => {
+            setMessage('');
+            setMessageType('');
+        }, 5000); // Pesan akan hilang setelah 5 detik
+    };
+
+    // Handler untuk menampilkan modal penolakan
+    const handleReject = () => {
+        setShowRejectModal(true);
+        setRejectionReason(''); // Reset alasan setiap kali modal dibuka
+    };
+
+    const submitRejection = async () => {
+        if (!rejectionReason.trim()) {
+            showNotification('Alasan penolakan tidak boleh kosong!', 'error');
+            return;
+        }
+        if (!selectedItemForRejection) {
+            showNotification('Tidak ada item yang dipilih untuk ditolak.', 'error');
+            return;
+        }
+    }
+
     return (
         <div className="min-h-screen p-2 font-sans antialiased">
             {/* Tailwind CSS CDN dan Font Inter - Dipindahkan ke sini untuk memastikan pemuatan */}
@@ -195,6 +231,12 @@ export default function tabelSenimanKTA() {
                                             {verificationStatus[item.id] ? 'Batalkan Verifikasi' : 'Verifikasi'}
                                         </button>
                                         <button
+                                            onClick={handleReject}
+                                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                                        >
+                                            Tolak
+                                        </button>
+                                        <button
                                             onClick={() => handlePrintCard(item)}
                                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105"
                                         >
@@ -204,7 +246,7 @@ export default function tabelSenimanKTA() {
                                                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                                                 <rect x="6" y="14" width="12" height="8"></rect>
                                             </svg>
-                                            Cetak Kartu
+                                            Cetak
                                         </button>
                                     </td>
                                 </tr>
@@ -230,6 +272,45 @@ export default function tabelSenimanKTA() {
                                 <p className="mb-1"><span className="font-semibold">Jenis Kelamin:</span> {itemToPrint.jeniskelamin}</p>
                                 <p className="mb-1"><span className="font-semibold">Alamat:</span> {itemToPrint.alamat}</p>
                                 <p className="mb-1"><span className="font-semibold">Profesi:</span> {itemToPrint.profesi}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal Penolakan */}
+                {showRejectModal && (
+                    <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-[9999] p-4">
+                        <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 scale-100 opacity-100">
+                            <h3 className="text-2xl font-bold mb-4 text-gray-600">Alasan Penolakan</h3>
+                            <textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                rows={4}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-700 resize-y"
+                                placeholder="Masukkan alasan penolakan di sini..."
+                            ></textarea>
+                            <div className="mt-6 flex justify-end space-x-3">
+                                <button
+                                    onClick={() => setShowRejectModal(false)}
+                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+                                    disabled={isSubmitting}
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    onClick={submitRejection}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center"
+                                    disabled={isSubmitting}
+                                >
+                                    {isSubmitting ? (
+                                        <svg className="animate-spin h-5 w-5 text-white mr-3" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    ) : (
+                                        'Kirim Penolakan'
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>
