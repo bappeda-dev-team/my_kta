@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import HeaderUserOrganisasi from "@/component/global/header-organisasi";
-import Router from "next/navigation";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 type FormValue = {
@@ -34,7 +33,6 @@ export default function PendaftaranOrganisasi() {
     const [fotoKtp, setFotoKtp] = useState<File | null>(null); // State for KTP photo
     const [foto3x4, setFoto3x4] = useState<File | null>(null); // State for 3x4 photo
 
-    const router = Router.useRouter();
     const { control, handleSubmit } = useForm<FormValue>();
 
     const onSubmit: SubmitHandler<FormValue> = async (data) => {
@@ -248,6 +246,7 @@ export default function PendaftaranOrganisasi() {
                     <div>
                         <label className="block text-sm font-medium mb-1">Keterangan (Optional)</label>
                         <Controller
+
                             name="keterangan"
                             control={control}
                             render={({ field }) => (

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import HeaderUser from '@/component/global/header-seni';
-import Router from 'next/navigation';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 
@@ -30,7 +29,6 @@ export default function PendaftaranSeniman() {
     const [foto3x4, setFoto3x4] = useState<File | null>(null); // New state for 3x4 photo
     const [keterangan, setKeterangan] = useState('');
 
-    const router = Router.useRouter();
 
     const { control, handleSubmit } = useForm<FormValue>();
 

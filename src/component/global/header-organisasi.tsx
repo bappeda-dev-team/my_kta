@@ -1,7 +1,7 @@
-import Router from "next/navigation";
+import {useRouter} from "next/navigation";
 
 const HeaderUserOrganisasi = () => {
-    const router = Router.useRouter();
+    const router = useRouter();
     return (
         <header className="bg-white shadow p-4 flex items-center justify-between">
             <h1 className="text-xl font-bold text-gray-800">Portal Organisasi</h1>
