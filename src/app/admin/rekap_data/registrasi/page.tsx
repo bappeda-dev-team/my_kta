@@ -7,7 +7,7 @@ export default function PengajuanPage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold mb-6">Rekap Data Registrasi</h1>
+      <h1 className="text-3xl font-bold mb-6">Rekap Data Registrasi User</h1>
 
       <div className="flex gap-6">
         <button

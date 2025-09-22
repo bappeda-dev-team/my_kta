@@ -117,7 +117,7 @@ const SignUpPage=()=> {
                 />
               )}
             />
-          </div>
+          </div>  
 
           <button
             type="submit"

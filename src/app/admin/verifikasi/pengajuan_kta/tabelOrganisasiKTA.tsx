@@ -24,6 +24,9 @@ export default function TabelOrganisasiKTA() {
     // State untuk melacak status verifikasi per item
     const [verificationStatus, setVerificationStatus] = useState<Record<number, boolean>>({});
 
+    // State untuk melacak kata kunci pencarian
+    const [searchTerm, setSearchTerm] = useState('');
+
     // Mengatur judul dokumen saat komponen dimuat
     useEffect(() => {
         document.title = 'Halaman Tabel Interaktif';
@@ -37,6 +40,13 @@ export default function TabelOrganisasiKTA() {
         }));
         // menambahkan logika untuk menyimpan status ini ke backend di sini
     };
+
+    // Filter data berdasarkan searchTerm
+    const filteredData = data.filter(item =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.alamat.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.indukOrganisasi.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     // State untuk melacak URL foto KTP dan 3x4 per item
     const [photos, setPhotos] = useState(() => {
@@ -126,6 +136,17 @@ export default function TabelOrganisasiKTA() {
             <main className="container mx-auto bg-white p-6 rounded-lg shadow-xl">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Data Organisasi</h1>
 
+                {/* Input Filter Pencarian */}
+                <div className="mb-6 flex justify-center no-print">
+                    <input
+                        type="text"
+                        placeholder="Cari berdasarkan nama, TTL, alamat, atau induk organisasi..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full max-w-xl px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
                 {/* Tabel Data */}
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -145,7 +166,8 @@ export default function TabelOrganisasiKTA() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {data.map((item) => (
+
+                            {filteredData.map((item) => (
                                 <tr key={item.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">{item.id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.name}</td>

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 // Komponen utama aplikasi
-export default function tabelSenimanKTA() {
+export default function TabelSenimanKTA() {
     // Contoh data untuk tabel
     const [data, setData] = useState([
         { id: 1, name: 'Nahendra Gatotkaca', TTL: 'Madiun, 01-01-1999', jeniskelamin: 'Laki-laki', alamat: 'Madiun', profesi: 'dalang', ktpPhoto: '', threeByFourPhoto: '', status: 'Pending' },
@@ -9,20 +9,6 @@ export default function tabelSenimanKTA() {
 
     // State untuk melacak status verifikasi per item
     const [verificationStatus, setVerificationStatus] = useState<Record<number, boolean>>({});
-
-    // Mengatur judul dokumen saat komponen dimuat
-    useEffect(() => {
-        document.title = 'Halaman Tabel Interaktif';
-    }, []);
-
-    // Fungsi untuk menangani verifikasi
-    const handleVerify = (id: number) => {
-        setVerificationStatus(prevStatus => ({
-            ...prevStatus,
-            [id]: !prevStatus[id] // Toggle status (true/false)
-        }));
-        // menambahkan logika untuk menyimpan status ini ke backend di sini
-    };
 
     // State untuk melacak URL foto KTP dan 3x4 per item
     const [photos, setPhotos] = useState(() => {
@@ -36,6 +22,36 @@ export default function tabelSenimanKTA() {
         return initialPhotos;
     });
 
+    // State untuk data item yang akan dicetak sebagai kartu
+    const [itemToPrint, setItemToPrint] = useState<DataItem | null>(null);
+
+    // State untuk modal penolakan
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedItemForRejection, setSelectedItemForRejection] = useState<DataItem | null>(null);
+
+    // State untuk notifikasi (pesan dan tipe: 'success' atau 'error')
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
+
+    // State for search term
+    const [searchTerm, setSearchTerm] = useState('');
+
+    // Mengatur judul dokumen saat komponen dimuat
+    useEffect(() => {
+        document.title = 'Halaman Tabel Interaktif';
+    }, []);
+
+    // Fungsi untuk menangani verifikasi
+    const handleVerify = (id: number) => {
+        setVerificationStatus(prevStatus => ({
+            ...prevStatus,
+            [id]: !prevStatus[id] // Toggle status (true/false)
+        }));
+        // TODO: tambahkan logika untuk menyimpan status ini ke backend di sini
+    };
+
     const handlePhotoChange = (id: string | number, type: any, url: any) => {
         setPhotos(prevPhotos => ({
             ...prevPhotos,
@@ -44,7 +60,7 @@ export default function tabelSenimanKTA() {
                 [type]: url
             }
         }));
-        // menambahkan logika untuk menyimpan URL foto ini ke backend di sini
+        // TODO: tambahkan logika untuk menyimpan URL foto ini ke backend di sini
     };
 
     // Tipe data untuk item
@@ -60,11 +76,8 @@ export default function tabelSenimanKTA() {
         status: string;
     };
 
-    // State untuk data item yang akan dicetak sebagai kartu
-    const [itemToPrint, setItemToPrint] = useState<DataItem | null>(null);
-
     // Fungsi untuk menangani pencetakan kartu
-    const handlePrintCard = (item: any) => {
+    const handlePrintCard = (item: DataItem) => {
         setItemToPrint(item); // Set item yang akan dicetak
         // Beri sedikit jeda agar React memiliki waktu untuk merender kartu sebelum mencetak
         setTimeout(() => {
@@ -72,15 +85,6 @@ export default function tabelSenimanKTA() {
             setItemToPrint(null); // Reset setelah dialog cetak dimulai
         }, 100);
     };
-
-    const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedItemForRejection, setSelectedItemForRejection] = useState<DataItem | null>(null); // Menyimpan item yang sedang ditolak
-
-    // State untuk notifikasi (pesan dan tipe: 'success' atau 'error')
-    const [message, setMessage] = useState('');
-    const [messageType, setMessageType] = useState('');
 
     // Fungsi untuk menampilkan pesan notifikasi
     const showNotification = (msg: string, type: string) => {
@@ -93,7 +97,8 @@ export default function tabelSenimanKTA() {
     };
 
     // Handler untuk menampilkan modal penolakan
-    const handleReject = () => {
+    const handleRejectClick = (item: DataItem) => { // Modified to accept item
+        setSelectedItemForRejection(item);
         setShowRejectModal(true);
         setRejectionReason(''); // Reset alasan setiap kali modal dibuka
     };
@@ -107,11 +112,35 @@ export default function tabelSenimanKTA() {
             showNotification('Tidak ada item yang dipilih untuk ditolak.', 'error');
             return;
         }
-    }
+        setIsSubmitting(true);
+        // TODO: Add actual rejection logic and API call here
+        console.log(`Rejecting item ${selectedItemForRejection.id} with reason: ${rejectionReason}`);
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        showNotification(`Item ${selectedItemForRejection.name} berhasil ditolak.`, 'success');
+        setShowRejectModal(false);
+        setIsSubmitting(false);
+        setSelectedItemForRejection(null); // Clear selected item
+    };
+
+    // Filtered data based on searchTerm
+    const filteredData = useMemo(() => {
+        if (!searchTerm) {
+            return data;
+        }
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return data.filter(item =>
+            item.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.TTL.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.alamat.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.profesi.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.jeniskelamin.toLowerCase().includes(lowerCaseSearchTerm)
+        );
+    }, [data, searchTerm]);
 
     return (
         <div className="min-h-screen p-2 font-sans antialiased">
-            {/* Tailwind CSS CDN dan Font Inter - Dipindahkan ke sini untuk memastikan pemuatan */}
+            {/* Tailwind CSS CDN and Inter Font - Moved here to ensure loading */}
             <script src="https://cdn.tailwindcss.com"></script>
             <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
             <style>
@@ -126,18 +155,6 @@ export default function tabelSenimanKTA() {
             }
             body {
               background-color: #fff;
-            }
-            .print-only-card .card-container {
-              width: 3.38in; /* Ukuran kartu standar (approx. 85.6mm) */
-              height: 2.12in; /* Ukuran kartu standar (approx. 53.98mm) */
-              border: 1px solid #ccc; /* Border untuk kartu saat dicetak */
-              padding: 0.25in; /* Padding untuk konten kartu */
-              box-sizing: border-box; /* Pastikan padding termasuk dalam ukuran */
-              display: flex;
-              flex-direction: column;
-              justify-content: space-between;
-              align-items: center;
-              font-size: 8pt; /* Ukuran font lebih kecil untuk kartu */
             }
             table {
               width: 100%;
@@ -158,6 +175,24 @@ export default function tabelSenimanKTA() {
             <main className="container mx-auto bg-white p-6 rounded-lg shadow-xl">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">Data Pelaku Seni</h1>
 
+                {/* Notification Message */}
+                {message && (
+                    <div className={`p-3 mb-4 rounded-md text-white ${messageType === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
+                        {message}
+                    </div>
+                )}
+
+                {/* Filter Input */}
+                <div className="mb-4 no-print">
+                    <input
+                        type="text"
+                        placeholder="Cari berdasarkan nama, TTL, alamat, atau profesi..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
                 {/* Tabel Data */}
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -176,7 +211,8 @@ export default function tabelSenimanKTA() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {data.map((item) => (
+                            {/* Use filteredData here */}
+                            {filteredData.map((item) => (
                                 <tr key={item.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">{item.id}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.name}</td>
@@ -231,8 +267,8 @@ export default function tabelSenimanKTA() {
                                             {verificationStatus[item.id] ? 'Batalkan Verifikasi' : 'Verifikasi'}
                                         </button>
                                         <button
-                                            onClick={handleReject}
-                                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                                            onClick={() => handleRejectClick(item)}
+                                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mr-2"
                                         >
                                             Tolak
                                         </button>
@@ -246,11 +282,18 @@ export default function tabelSenimanKTA() {
                                                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                                                 <rect x="6" y="14" width="12" height="8"></rect>
                                             </svg>
-                                            Cetak
+                                            Cetak Kartu
                                         </button>
                                     </td>
                                 </tr>
                             ))}
+                            {filteredData.length === 0 && (
+                                <tr>
+                                    <td colSpan={10} className="px-6 py-4 text-center text-gray-500">
+                                        Tidak ada data yang cocok dengan pencarian Anda.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
