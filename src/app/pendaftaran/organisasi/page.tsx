@@ -3,54 +3,46 @@
 import { useState } from "react";
 import HeaderUserOrganisasi from "@/component/global/header-organisasi";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { parse } from "path";
 
-
-// type FormValue = {
-//     nomor_induk?: string;
-//     nama: string;
-//     tempat_lahir: string;
-//     tanggal_lahir: string;
-//     jenis_kelamin: string;
-//     alamat: string;
-//     induk_organisasi: string;
-//     jumlahAnggota?: number;
-//     fotoKtp?: File | null;
-//     foto3x4?: File | null;
-//     keterangan?: string;
-// };
+// Tipe data disesuaikan untuk Step 1
 type FormValue = {
-    tertanda: {
+    nomor_induk: string;
+    nama: string; // Nama Organisasi
+    tempat_lahir: string; // Tempat Lahir Ketua
+    tanggal_lahir: string; // Tanggal Lahir Ketua
+    jenis_kelamin: string; // Jenis Kelamin Ketua
+    alamat: string; // Alamat Organisasi
+    induk_organisasi: string;
+    jumlah_anggota: string; // Diubah ke string untuk form input, lalu di-parse ke number saat submit
+    keterangan?: string;
+    // Data untuk Step 2 (tidak diisi di Step 1, tapi dibutuhkan untuk onSubmit penuh)
+    profesi?: string;
+    daerah?: string;
+    berlaku_dari?: number;
+    berlaku_sampai?: number;
+    dibuat_di?: string;
+    tertanda?: {
         nama: string,
         tanda_tangan: string,
         jabatan: string,
         nip: string,
         pangkat: string
-    },
-    keterangan: string,
-    induk_organisasi: string,
-    nomor_induk: string,
-    jumlah_anggota: string,
-    daerah: string,
-    berlaku_dari: number
-    berlaku_sampai: number,
-    nama: string,
-    tanggal_lahir: string,
-    jenis_kelamin: string,
-    alamat: string,
-    profesi: string,
-    dibuat_di: string
- };
+    }
+};
 
 export default function PendaftaranOrganisasi() {
     const [step, setStep] = useState(1);
     const [fotoKtp, setFotoKtp] = useState<File | null>(null);
     const [foto3x4, setFoto3x4] = useState<File | null>(null);
-    const [proses, setProses] = useState<boolean>(false);
+    // Ubah status proses menjadi lebih spesifik
+    const [proses, setProses] = useState<boolean>(false); 
+    const [prosesSimpanStep1, setProsesSimpanStep1] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [draftId, setDraftId] = useState<string | null>(null); // State untuk menyimpan ID draft/pengajuan jika Step 1 berhasil disimpan
 
     const { control, handleSubmit, trigger, getValues, formState: { errors } } = useForm<FormValue>({
         defaultValues: {
-            // Memberikan nilai default untuk menghindari uncontrolled input warnings
             nomor_induk: '',
             nama: '',
             tempat_lahir: '',
@@ -58,12 +50,85 @@ export default function PendaftaranOrganisasi() {
             jenis_kelamin: '',
             alamat: '',
             induk_organisasi: '',
-            jumlahAnggota: 1,
+            jumlah_anggota: '', // Dipertahankan sebagai string untuk input type="number"
             keterangan: '',
+            // Field optional lainnya...
         }
     });
 
-    // Pindah ke langkah berikutnya setelah validasi
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const username = process.env.NEXT_PUBLIC_API_USERNAME;
+    const password = process.env.NEXT_PUBLIC_API_PASSWORD;
+
+    if (!username || !password) {
+        console.error('API username or password not found in environment variables.');
+        // Ini mungkin terlalu agresif, tapi pastikan variabel env terkonfigurasi.
+        // Biasanya, check ini bisa dilakukan sekali di awal mount.
+    }
+    const encodedCredentials = username && password ? btoa(`${username}:${password}`) : '';
+
+
+    // Fungsi baru: Menyimpan data Step 1 (Draft)
+    const saveStepOne = async (data: FormValue) => {
+        if (!encodedCredentials) {
+            setErrorMessage("Kesalahan konfigurasi API. Tidak dapat menyimpan draft.");
+            return false;
+        }
+
+        const formData = {
+            nomor_induk: data.nomor_induk,
+            nama: data.nama,
+            tempat_tanggal_lahir: `${data.tempat_lahir}, ${data.tanggal_lahir}`,
+            jenis_kelamin: data.jenis_kelamin,
+            alamat: data.alamat,
+            induk_organisasi: data.induk_organisasi,
+            // Konversi ke number sebelum kirim
+            jumlah_anggota: parseInt(data.jumlah_anggota || '0'), 
+            keterangan: data.keterangan || '',
+            status: 'draft', // Menandai ini sebagai draft
+            // sertakan draftId jika sudah ada (untuk update draft)
+            ...(draftId && { id: draftId }),
+        };
+
+        setProsesSimpanStep1(true);
+        setErrorMessage(null);
+
+        try {
+            // Logika disesuaikan: POST untuk buat draft baru, PUT/PATCH untuk update draft
+            const method = draftId ? 'PUT' : 'POST'; 
+            const url = draftId ? `${apiUrl}/pengajuan/${draftId}` : `${apiUrl}/pengajuan/draft`;
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${encodedCredentials}`,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                throw new Error(`Gagal menyimpan draft: ${errorData.message || response.statusText}`);
+            }
+
+            const result = await response.json();
+            // Asumsi: API mengembalikan ID pengajuan yang dibuat/diupdate
+            setDraftId(result.id || draftId); 
+            setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${draftId ? '(Diperbarui)' : ''}`);
+            return true;
+
+        } catch (error: any) {
+            console.error('Error saving draft:', error);
+            setErrorMessage(error.message || 'Terjadi kesalahan saat menyimpan draft. Coba lagi.');
+            return false;
+        } finally {
+            setProsesSimpanStep1(false);
+        }
+    }
+
+
+    // Pindah ke langkah berikutnya setelah validasi DAN SIMPAN DRAFT BERHASIL
     const nextStep = async () => {
         // Daftar field yang perlu divalidasi di Step 1
         const fieldsToValidate: (keyof FormValue)[] = [
@@ -75,17 +140,21 @@ export default function PendaftaranOrganisasi() {
             'alamat',
             'induk_organisasi',
             'jumlah_anggota'
-            // Keterangan diabaikan karena optional
         ];
 
         const isValid = await trigger(fieldsToValidate, { shouldFocus: true });
 
         if (isValid) {
-            setStep(2);
-            setErrorMessage(null); // Clear error message when moving to the next step
+            const data = getValues();
+            const saveSuccess = await saveStepOne(data); // Panggil fungsi simpan draft
+            
+            if (saveSuccess) {
+                setStep(2);
+                setErrorMessage(null); // Clear error message when moving to the next step
+            }
         } else {
             // Opsional: Atur pesan error jika validasi gagal
-            setErrorMessage("Mohon lengkapi semua field wajib di Langkah 1.");
+            setErrorMessage("Mohon lengkapi semua field wajib di Langkah 1 sebelum melanjutkan.");
         }
     };
 
@@ -95,74 +164,78 @@ export default function PendaftaranOrganisasi() {
         setErrorMessage(null);
     };
 
+    // Fungsi Submit Akhir (Step 2)
     const onSubmit: SubmitHandler<FormValue> = async (data) => {
         setErrorMessage(null);
 
-        // Validasi file di langkah terakhir sebelum submit
         if (!fotoKtp || !foto3x4) {
             setErrorMessage("Mohon lengkapi upload Foto KTP dan Foto 3x4.");
             return;
         }
+
+        if (!draftId) {
+             setErrorMessage("Kesalahan sistem: Draft ID tidak ditemukan. Mohon ulangi dari Langkah 1.");
+             return;
+        }
         
-
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        const username = process.env.NEXT_PUBLIC_API_USERNAME;
-        const password = process.env.NEXT_PUBLIC_API_PASSWORD;
-
-        if (!username || !password) {
-            console.error('API username or password not found in environment variables.');
+        if (!encodedCredentials) {
             setErrorMessage("Kesalahan konfigurasi API. Tidak dapat melanjutkan.");
             return;
         }
+        
+        // Catatan: Dalam implementasi nyata, Anda harus menggunakan FormData
+        // untuk mengupload file. Di sini, kita hanya mengirim metadata form 
+        // dan *mengasumsikan* backend akan menerima file upload terpisah 
+        // atau kita akan mengirim file di request yang berbeda.
 
-        const credentials = `${username}:${password}`;
-        const encodedCredentials = btoa(credentials);
-
-        // Catatan: Dalam implementasi nyata, Anda akan menggunakan FormData
-        // untuk mengupload file secara benar ke backend, bukan JSON.stringify.
-        // Di sini, kita hanya mengirim metadata form karena objek File tidak bisa di-serialize
-        // langsung dalam JSON.
-        const formData = {
-            nomor_induk: data.nomor_induk || '',
+        // Simulasikan pengiriman data Step 1 + File Upload Metadata.
+        // Di dunia nyata, ini akan menjadi request terpisah atau menggunakan FormData
+        const finalData = {
+            id: draftId, // Menggunakan ID yang didapat dari Step 1
+            nomor_induk: data.nomor_induk,
             nama: data.nama,
             tempat_tanggal_lahir: `${data.tempat_lahir}, ${data.tanggal_lahir}`,
             jenis_kelamin: data.jenis_kelamin,
             alamat: data.alamat,
             induk_organisasi: data.induk_organisasi,
-            jumlah_anggota: data.jumlah_anggota,
+            jumlah_anggota: parseInt(data.jumlah_anggota || '0'),
             keterangan: data.keterangan || '',
-            // Simulasi pengiriman file, dalam dunia nyata ini harus diubah
-            // fotoKtp: fotoKtp.name, 
-            // foto3x4: foto3x4.name,
+            // Simulasi data file. Dalam implementasi nyata, gunakan FormData.
+            fotoKtp: fotoKtp.name, 
+            foto3x4: foto3x4.name,
+            status: 'submitted', // Ubah status menjadi submitted
         };
+        
+        // TODO: Anda perlu menambahkan logic untuk mengupload fotoKtp dan foto3x4
+        // menggunakan FormData ke endpoint yang sesuai (misalnya /pengajuan/upload/draftId)
+        // sebelum atau sesudah mengirimkan finalData, tergantung desain API Anda.
 
         try {
             setProses(true);
 
-            // SIMULASI FETCH: Ganti dengan logic pengiriman file (misalnya FormData)
-            const response = await fetch(`${apiUrl}/pengajuan`, {
-                method: 'POST',
+            // SIMULASI FETCH SUBMIT AKHIR (mengubah status draft menjadi submitted)
+            const response = await fetch(`${apiUrl}/pengajuan/${draftId}/submit`, {
+                method: 'POST', // Atau PUT/PATCH, tergantung desain API Anda
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Basic ${encodedCredentials}`,
                 },
-                body: JSON.stringify(formData) // Hanya metadata form,
+                body: JSON.stringify(finalData)
             });
-
-            
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: response.statusText }));
                 console.error(`Error: ${response.status} - ${JSON.stringify(errorData)}`);
-                setErrorMessage(`Gagal mengirim data: ${errorData.message || response.statusText}`);
+                setErrorMessage(`Gagal mengirim pendaftaran akhir: ${errorData.message || response.statusText}`);
                 return;
             }
 
             const result = await response.json();
             console.log('Form submitted successfully:', result);
-            setErrorMessage("Pendaftaran Berhasil Dikirim!"); // Pesan sukses
+            setErrorMessage("Pendaftaran Berhasil Dikirim! Dokumen Anda sedang diproses."); // Pesan sukses
 
         } catch (error) {
-         
+           
             console.error('Error submitting form:', error);
             setErrorMessage('Terjadi kesalahan saat mengirim formulir. Coba lagi.');
         } finally {
@@ -201,11 +274,11 @@ export default function PendaftaranOrganisasi() {
 
                                 {/* Nomor Induk Ketua */}
                                 <FormInput
-                                    label="Nomor Induk Ketua"
+                                    label="Nomor Induk Ketua (NIK/SIM/KITAS)"
                                     name="nomor_induk"
                                     control={control}
                                     type="text"
-                                    placeholder="Masukkan nomor induk ketua (NIK/SIM/KITAS)"
+                                    placeholder="Masukkan nomor induk ketua"
                                     error={errors.nomor_induk}
                                     required={true}
                                 />
@@ -302,21 +375,19 @@ export default function PendaftaranOrganisasi() {
 
                                 {/* Jumlah Anggota */}
                                 <div>
-                                    <label htmlFor="jumlahAnggota" className="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggota</label>
+                                    <label htmlFor="jumlah_anggota" className="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggota</label>
                                     <Controller
                                         name="jumlah_anggota"
                                         control={control}
                                         rules={{
                                             required: "Jumlah anggota wajib diisi",
-                                            min: { value: 1, message: "Jumlah anggota minimal 1" }
+                                            validate: value => (parseInt(value) > 0) || "Jumlah anggota minimal 1"
                                         }}
                                         render={({ field }) => (
                                             <input
-                                                id="jumlahAnggota"
+                                                id="jumlah_anggota"
                                                 {...field}
                                                 type="number"
-                                                // Pastikan nilai diubah ke number saat onChange
-                                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                                                 min="1"
                                                 required
                                                 className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
@@ -344,15 +415,32 @@ export default function PendaftaranOrganisasi() {
                                     />
                                 </div>
 
-                                {/* Navigation Button Step 1 */}
-                                <button
-                                    type="button"
-                                    onClick={nextStep}
-                                    disabled={proses}
-                                    className="w-full bg-blue-600 text-white py-3 mt-4 rounded-lg hover:bg-blue-700 transition duration-300 font-bold shadow-lg disabled:bg-blue-300"
-                                >
-                                    Lanjut ke Langkah 2 (Upload Dokumen)
-                                </button>
+                                {/* Navigation & Save Button Step 1 */}
+                                <div className="flex gap-4 pt-4">
+                                    {/* Tombol Simpan Draft */}
+                                    <button
+                                        type="button"
+                                        onClick={handleSubmit((data) => saveStepOne(data))} // Gunakan handleSubmit untuk validasi sebelum simpan
+                                        disabled={prosesSimpanStep1 || proses}
+                                        className="w-1/2 bg-yellow-600 text-white py-3 rounded-lg hover:bg-yellow-700 transition duration-300 font-bold shadow-lg disabled:bg-yellow-300"
+                                    >
+                                        {prosesSimpanStep1 ? 'Menyimpan Draft...' : (draftId ? 'Update Draft' : 'Simpan')}
+                                    </button>
+
+                                    {/* Tombol Lanjut Step 2 */}
+                                    <button
+                                        type="button"
+                                        onClick={nextStep} // nextStep akan memanggil saveStepOne internal
+                                        disabled={prosesSimpanStep1 || proses}
+                                        className="w-1/2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-bold shadow-lg disabled:bg-blue-300"
+                                    >
+                                        Lanjut ke Langkah 2 &rarr;
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2 text-center">
+                                    *Data harus valid dan berhasil disimpan (draft) sebelum dapat melanjutkan ke Langkah 2.
+                                    {draftId && <span className="text-blue-600 font-medium block"> Draft ID: {draftId}</span>}
+                                </p>
                             </div>
                         )}
 
@@ -419,7 +507,7 @@ export default function PendaftaranOrganisasi() {
                                     <button
                                         type="submit"
                                         className="w-1/2 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-bold shadow-lg disabled:bg-green-300"
-                                        disabled={proses || !fotoKtp || !foto3x4}
+                                        disabled={proses || !fotoKtp || !foto3x4 || !draftId}
                                     >
                                         {proses ? 'Mengirim...' : 'Submit Pendaftaran'}
                                     </button>
@@ -433,7 +521,7 @@ export default function PendaftaranOrganisasi() {
     );
 }
 
-// Komponen Pembantu untuk Step Indicator
+// Komponen Pembantu untuk Step Indicator (Tidak Berubah)
 const StepIndicator = ({ number, title, isActive }: { number: number, title: string, isActive: boolean }) => (
     <div className="flex flex-col items-center z-10">
         <div className={`w-10 h-10 flex items-center justify-center rounded-full font-bold text-lg border-4 transition-colors duration-300 ${isActive ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-500'}`}>
@@ -443,7 +531,7 @@ const StepIndicator = ({ number, title, isActive }: { number: number, title: str
     </div>
 );
 
-// Komponen Pembantu untuk Input Form
+// Komponen Pembantu untuk Input Form (Diubah sedikit untuk menangani type="number")
 const FormInput = ({ label, name, control, type, placeholder, className = "", error, required = false }: any) => (
     <div className={className}>
         {label && <label htmlFor={name} className="block text-sm font-medium mb-1 text-gray-700">{label}</label>}
@@ -459,8 +547,8 @@ const FormInput = ({ label, name, control, type, placeholder, className = "", er
                     placeholder={placeholder}
                     className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
                     required={required}
-                    // Khusus untuk number input, pastikan nilai diubah
-                    onChange={(e) => field.onChange(type === 'number' ? parseInt(e.target.value) || undefined : e.target.value)}
+                    // Menggunakan value dari field.value, yang harus berupa string untuk input text/number non-controlled
+                    // field.onChange akan mengupdate state form dengan nilai string
                 />
             )}
         />

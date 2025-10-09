@@ -6,7 +6,7 @@ export default function TabelOrganisasiKTA() {
     // Contoh data untuk tabel
     const [data, setData] = useState([
         {
-            id: 1, name: 'Setyo Wibowo', TTL: 'Madiun, 01-01-1999', jeniskelamin: 'Laki-laki', alamat: 'Madiun', induk: 'Pencak Silat', jumlah: '10',
+            id: 1, nomor_induk: '32165445645', name: 'Setyo Wibowo', TTL: 'Madiun, 01-01-1999', jeniskelamin: 'Laki-laki', alamat: 'Madiun', induk: 'Pencak Silat', jumlah: '10',
             ktpPhoto: '',
             threeByFourPhoto: '',
             status: 'Pending',
@@ -75,6 +75,7 @@ export default function TabelOrganisasiKTA() {
     // Tipe data untuk item
     type DataItem = {
         id: number;
+        nomor_induk: string;
         name: string;
         TTL: string;
         jeniskelamin: string;
@@ -157,23 +158,25 @@ export default function TabelOrganisasiKTA() {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[50px] text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg">ID</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[150px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Induk Ketua</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Tempat, Tanggal Lahir</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Induk Organisasi</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Anggota</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Foto KTP</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Foto 3x4</th>
+                                        {/* <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Foto KTP</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Foto 3x4</th> */}
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Status Verifikasi</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg no-print">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
 
+                                <tbody className="bg-white divide-y divide-gray-200">
                                     {filteredData.map((item) => (
                                         <tr key={item.id}>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 rounded-bl-lg">{item.id}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.nomor_induk}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.name}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.TTL}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.jeniskelamin}</td>
@@ -181,7 +184,7 @@ export default function TabelOrganisasiKTA() {
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.induk}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.jumlah}</td>
                                             <td className="px-6 py-4 text-sm text-gray-700">
-                                                <div className="flex flex-col items-center">
+                                                {/* <div className="flex flex-col items-center">
                                                     {photos[item.id]?.ktp ? (
                                                         <img src={photos[item.id].ktp} alt="Foto KTP" className="w-24 h-auto rounded-md object-cover mb-2" onError={(e: any) => { e.target.onerror = null; e.target.src = 'https://placehold.co/96x64/E0E0E0/555555?text=KTP'; }} />
                                                     ) : (
@@ -209,7 +212,7 @@ export default function TabelOrganisasiKTA() {
                                                         onChange={(e) => handlePhotoChange(item.id, 'threeByFour', e.target.value)}
                                                         className="w-full px-2 py-1 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 no-print"
                                                     />
-                                                </div>
+                                                </div> */}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${verificationStatus[item.id] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -257,6 +260,7 @@ export default function TabelOrganisasiKTA() {
                                         )}
                                     </div>
                                     <div className="text-sm text-gray-700 text-center">
+                                        <p className="mb-1"><span className="font-semibold">Nomor Induk Ketua:</span> {itemToPrint.nomor_induk}</p>
                                         <p className="mb-1"><span className="font-semibold">Tempat/Tgl Lahir:</span> {itemToPrint.TTL}</p>
                                         <p className="mb-1"><span className="font-semibold">Jenis Kelamin:</span> {itemToPrint.jeniskelamin}</p>
                                         <p className="mb-1"><span className="font-semibold">Alamat:</span> {itemToPrint.alamat}</p>
