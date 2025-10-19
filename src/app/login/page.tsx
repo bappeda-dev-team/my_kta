@@ -3,24 +3,35 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Pendaftaran from "@/app/pendaftaran/page";
+import { login } from "@/component/lib/cookie";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [proses, setProses] = useState(false);
   const Router= useRouter();
 
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     // Di sini Anda bisa tambahkan logika autentikasi
-    
-    Router.push("/");
+     setProses(true);
+        try{
+            const isLoggedIn = await login(username, password);
+            if (isLoggedIn) {
+              Router.push('/pendaftaran'); // Redirect ke halaman dashboard jika login berhasil
+            }
+            // console.log(username, password)
+        } catch(error) {
+            console.error(error)
+        } finally {
+            setProses(false);
+        }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form
-        
         className="bg-white p-8 rounded-xl shadow-md w-full max-w-md space-y-6"
       >
         <h1 className="text-2xl font-bold text-center">Login</h1>
@@ -46,6 +57,7 @@ export default function LoginPage() {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="••••••••"
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="button"
@@ -61,7 +73,10 @@ export default function LoginPage() {
 
         <button
           type="button"
-          onClick={() => Router.push("/pendaftaran")}
+          onClick={() => {
+            // Router.push("/pendaftaran")
+            handleSubmit()
+          }}
           className="w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-800 transition">
           Login
         </button>

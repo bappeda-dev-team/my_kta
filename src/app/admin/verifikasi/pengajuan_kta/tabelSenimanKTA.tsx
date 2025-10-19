@@ -10,34 +10,9 @@ export default function TabelSenimanKTA() {
     // State untuk melacak status verifikasi per item
     const [verificationStatus, setVerificationStatus] = useState<Record<number, boolean>>({});
 
-    // State untuk melacak URL foto KTP dan 3x4 per item
-    const [photos, setPhotos] = useState(() => {
-        const initialPhotos: { [key: number]: { ktp: string; threeByFour: string } } = {};
-        data.forEach(item => {
-            initialPhotos[item.id] = {
-                ktp: item.ktpPhoto,
-                threeByFour: item.threeByFourPhoto
-            };
-        });
-        return initialPhotos;
-    });
-
-    // State untuk data item yang akan dicetak sebagai kartu
-    const [itemToPrint, setItemToPrint] = useState<DataItem | null>(null);
-
-    // State untuk modal penolakan
-    const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedItemForRejection, setSelectedItemForRejection] = useState<DataItem | null>(null);
-
-    // State untuk notifikasi (pesan dan tipe: 'success' atau 'error')
-    const [message, setMessage] = useState('');
-    const [messageType, setMessageType] = useState('');
-
     // State for search term
     const [searchTerm, setSearchTerm] = useState('');
-
+    
     // Mengatur judul dokumen saat komponen dimuat
     useEffect(() => {
         document.title = 'Halaman Tabel Interaktif';
@@ -49,19 +24,35 @@ export default function TabelSenimanKTA() {
             ...prevStatus,
             [id]: !prevStatus[id] // Toggle status (true/false)
         }));
-        // TODO: tambahkan logika untuk menyimpan status ini ke backend di sini
+        // menambahkan logika untuk menyimpan status ini ke backend di sini
     };
 
-    const handlePhotoChange = (id: string | number, type: any, url: any) => {
-        setPhotos(prevPhotos => ({
-            ...prevPhotos,
-            [id]: {
-                ...prevPhotos[Number(id)],
-                [type]: url
-            }
-        }));
-        // TODO: tambahkan logika untuk menyimpan URL foto ini ke backend di sini
-    };
+    // Filtered data based on searchTerm
+    const filteredData = useMemo(() => {
+        if (!searchTerm) {
+            return data;
+        }
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return data.filter(item =>
+            item.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.TTL.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.alamat.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.profesi.toLowerCase().includes(lowerCaseSearchTerm) ||
+            item.jeniskelamin.toLowerCase().includes(lowerCaseSearchTerm)
+        );
+    }, [data, searchTerm]);
+
+    // State untuk melacak URL foto KTP dan 3x4 per item
+    const [photos, setPhotos] = useState(() => {
+        const initialPhotos: { [key: number]: { ktp: string; threeByFour: string } } = {};
+        data.forEach(item => {
+            initialPhotos[item.id] = {
+                ktp: item.ktpPhoto,
+                threeByFour: item.threeByFourPhoto
+            };
+        });
+        return initialPhotos;
+    });
 
     // Tipe data untuk item
     type DataItem = {
@@ -75,6 +66,9 @@ export default function TabelSenimanKTA() {
         threeByFourPhoto: string;
         status: string;
     };
+    
+    // State untuk data item yang akan dicetak sebagai kartu
+    const [itemToPrint, setItemToPrint] = useState<DataItem | null>(null);
 
     // Fungsi untuk menangani pencetakan kartu
     const handlePrintCard = (item: DataItem) => {
@@ -84,6 +78,29 @@ export default function TabelSenimanKTA() {
             window.print();
             setItemToPrint(null); // Reset setelah dialog cetak dimulai
         }, 100);
+    };
+
+
+    // State untuk modal penolakan
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedItemForRejection, setSelectedItemForRejection] = useState<DataItem | null>(null);
+
+
+    // State untuk notifikasi (pesan dan tipe: 'success' atau 'error')
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
+
+    const handlePhotoChange = (id: string | number, type: any, url: any) => {
+        setPhotos(prevPhotos => ({
+            ...prevPhotos,
+            [id]: {
+                ...prevPhotos[Number(id)],
+                [type]: url
+            }
+        }));
+        // TODO: tambahkan logika untuk menyimpan URL foto ini ke backend di sini
     };
 
     // Fungsi untuk menampilkan pesan notifikasi
@@ -123,20 +140,6 @@ export default function TabelSenimanKTA() {
         setSelectedItemForRejection(null); // Clear selected item
     };
 
-    // Filtered data based on searchTerm
-    const filteredData = useMemo(() => {
-        if (!searchTerm) {
-            return data;
-        }
-        const lowerCaseSearchTerm = searchTerm.toLowerCase();
-        return data.filter(item =>
-            item.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-            item.TTL.toLowerCase().includes(lowerCaseSearchTerm) ||
-            item.alamat.toLowerCase().includes(lowerCaseSearchTerm) ||
-            item.profesi.toLowerCase().includes(lowerCaseSearchTerm) ||
-            item.jeniskelamin.toLowerCase().includes(lowerCaseSearchTerm)
-        );
-    }, [data, searchTerm]);
 
     return (
         <div className="min-h-screen p-2 font-sans antialiased">
@@ -183,7 +186,7 @@ export default function TabelSenimanKTA() {
                 )}
 
                 {/* Filter Input */}
-                <div className="mb-4 no-print">
+                <div className="mb-6 flex justify-center no-print">
                     <input
                         type="text"
                         placeholder="Cari berdasarkan nama, TTL, alamat, atau profesi..."

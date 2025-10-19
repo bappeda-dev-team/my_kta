@@ -7,22 +7,33 @@ import { noSSR } from 'next/dynamic';
 
 
 type FormValue = {
-    nomor_induk?: string;
-    nama: string;
-    tempat_tanggal_lahir?: string;
-    tempat_lahir?: string;
-    tanggal_lahir?: string;
-    jenis_kelamin: string;
-    alamat: string;
-    jenis_profesi: string;
-    fotoKtp?: File | null;
-    foto3x4?: File | null;
+    nomor_induk: string;
+    nama: string; // Nama Organisasi
+    tempat_lahir: string; // Tempat Lahir Ketua
+    tanggal_lahir: string; // Tanggal Lahir Ketua
+    jenis_kelamin: string; // Jenis Kelamin Ketua
+    alamat: string; // Alamat Organisasi
+    induk_organisasi: string;
+    jumlah_anggota: string; // Diubah ke string untuk form input, lalu di-parse ke number saat submit
     keterangan?: string;
+    // Data untuk Step 2 (tidak diisi di Step 1, tapi dibutuhkan untuk onSubmit penuh)
+    profesi?: string;
+    daerah?: string;
+    berlaku_dari?: number;
+    berlaku_sampai?: number;
+    dibuat_di?: string;
+    tertanda?: {
+        nama: string,
+        tanda_tangan: string,
+        jabatan: string,
+        nip: string,
+        pangkat: string
+    }
 };
 
 export default function PendaftaranSeniman() {
     // State untuk melacak langkah formulir saat ini (1 atau 2)
-    const [currentStep, setCurrentStep] = useState(1);
+    const [step, setStep] = useState(1);
 
     // State terpisah untuk menampung data file
     const [fotoKtp, setFotoKtp] = useState<File | null>(null);
@@ -43,7 +54,7 @@ export default function PendaftaranSeniman() {
             tanggal_lahir: '',
             jenis_kelamin: '',
             alamat: '',
-            jenis_profesi: '',
+            profesi: '',
             keterangan: '',
         },
     });
@@ -64,7 +75,7 @@ export default function PendaftaranSeniman() {
             tempat_tanggal_lahir: `${data.tempat_lahir}, ${data.tanggal_lahir}`,
             jenis_kelamin: data.jenis_kelamin,
             alamat: data.alamat,
-            jenis_profesi: data.jenis_profesi,
+            jenis_profesi: data.profesi,
             // File diambil dari state terpisah
             fotoKtp: fotoKtp.name, // Mengirim nama file saja untuk contoh log
             foto3x4: foto3x4.name, // Mengirim nama file saja untuk contoh log
@@ -82,7 +93,7 @@ export default function PendaftaranSeniman() {
 
     // Pindah ke Langkah Berikutnya (dari Step 1 ke Step 2)
     const handleNext = async () => {
-        if (currentStep === 1) {
+        if (step === 1) {
             // Validasi bidang-bidang wajib di Langkah 1
             const fieldsToValidate: (keyof FormValue)[] = [
                 'nomor_induk',
@@ -91,27 +102,27 @@ export default function PendaftaranSeniman() {
                 'tanggal_lahir',
                 'jenis_kelamin',
                 'alamat',
-                'jenis_profesi'
+                'profesi'
             ];
 
             // Trigger validasi untuk field yang spesifik
             const isStep1Valid = await trigger(fieldsToValidate);
 
             if (isStep1Valid) {
-                setCurrentStep(2);
+                setStep(2);
             }
         }
     };
 
     // Kembali ke Langkah Sebelumnya (dari Step 2 ke Step 1)
     const handleBack = () => {
-        setCurrentStep(1);
+        setStep(1);
     };
 
     // Kelas bantuan untuk indikator langkah
     const stepClass = (step: number) => {
         const base = 'w-10 h-10 flex items-center justify-center rounded-full font-bold transition-all duration-300 border-2';
-        if (currentStep >= step) {
+        if (step >= step) {
             return `${base} bg-blue-600 text-white border-blue-600 shadow-lg`;
         }
         return `${base} bg-white text-gray-500 border-gray-300`;
@@ -249,7 +260,7 @@ export default function PendaftaranSeniman() {
             <div>
                 <label htmlFor='jenis_profesi' className="block text-sm font-medium mb-1 text-gray-700">Jenis Profesi Seni</label>
                 <Controller
-                    name="jenis_profesi"
+                    name="profesi"
                     control={control}
                     rules={{ required: 'Jenis profesi wajib diisi' }}
                     render={({ field }) => (
@@ -262,7 +273,7 @@ export default function PendaftaranSeniman() {
                         />
                     )}
                 />
-                {errors.jenis_profesi && <p className="text-red-500 text-xs mt-1">{errors.jenis_profesi.message}</p>}
+                {errors.profesi && <p className="text-red-500 text-xs mt-1">{errors.profesi.message}</p>}
             </div>
 
 
@@ -395,7 +406,7 @@ export default function PendaftaranSeniman() {
                         <div className='absolute w-full px-16 top-1/2 transform -translate-y-1/2'>
                             <div className='h-1 bg-gray-200 rounded-full'>
                                 <div className='h-1 bg-blue-600 rounded-full transition-all duration-300'
-                                    style={{ width: currentStep === 2 ? '100%' : '0%' }}>
+                                    style={{ width: step === 2 ? '100%' : '0%' }}>
                                 </div>
                             </div>
                         </div>
@@ -404,21 +415,21 @@ export default function PendaftaranSeniman() {
                             {/* Step 1: Data Diri */}
                             <div className="flex flex-col items-center">
                                 <div className={stepClass(1)}>1</div>
-                                <span className={`text-sm mt-2 font-semibold text-center ${currentStep >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>Data Diri</span>
+                                <span className={`text-sm mt-2 font-semibold text-center ${step >= 1 ? 'text-blue-600' : 'text-gray-500'}`}>Data Diri</span>
                             </div>
 
                             {/* Step 2: Dokumen */}
                             <div className="flex flex-col items-center">
                                 <div className={stepClass(2)}>2</div>
-                                <span className={`text-sm mt-2 font-semibold text-center ${currentStep >= 2 ? 'text-blue-600' : 'text-gray-500'}`}>Dokumen</span>
+                                <span className={`text-sm mt-2 font-semibold text-center ${step >= 2 ? 'text-blue-600' : 'text-gray-500'}`}>Dokumen</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Konten Formulir */}
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        {currentStep === 1 && Step1}
-                        {currentStep === 2 && Step2}
+                        {step === 1 && Step1}
+                        {step === 2 && Step2}
                     </form>
                 </div>
             </main>
