@@ -32,6 +32,11 @@ type FormValue = {
         pangkat: string
     }
 };
+interface FormData {
+    nama_file: string;
+    file: string;
+    form_uuid: string;
+}
 
 export default function PendaftaranOrganisasi() {
     const [step, setStep] = useState(1);
@@ -42,8 +47,10 @@ export default function PendaftaranOrganisasi() {
     const [prosesSimpanStep1, setProsesSimpanStep1] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [draftId, setDraftId] = useState<string | null>(null); // State untuk menyimpan ID draft/pengajuan jika Step 1 berhasil disimpan
+    const [uuid, setUuid] = useState<string>(''); // State untuk menyimpan UUID jika diperlukan
 
     const token = getCookie('token');
+    const user_id = getCookie('user_id');
 
     const { control, handleSubmit, trigger, getValues, formState: { errors } } = useForm<FormValue>({
         defaultValues: {
@@ -82,7 +89,8 @@ export default function PendaftaranOrganisasi() {
         }
 
         const formData = {
-            user_id: 492773,
+            uuid: draftId,
+            user_id: user_id,
             nomor_induk: data.nomor_induk,
             nama: data.nama,
             tempat_lahir: data.tempat_lahir,
@@ -91,7 +99,7 @@ export default function PendaftaranOrganisasi() {
             alamat: data.alamat,
             induk_organisasi: data.induk_organisasi,
             // Konversi ke number sebelum kirim
-            jumlah_anggota:data.jumlah_anggota,
+            jumlah_anggota: data.jumlah_anggota,
             keterangan: data.keterangan || '',
             dibuat_di: "Jakarta",
             daerah: "Indonesia",
@@ -104,12 +112,13 @@ export default function PendaftaranOrganisasi() {
         setProsesSimpanStep1(true);
         setErrorMessage(null);
 
+        // console.log(formData)
         try {
             // Logika disesuaikan: POST untuk buat draft baru, PUT/PATCH untuk update draft
             let method = draftId ? 'POST' : 'POST';
-            let url = draftId ? `${apiUrl}/pengajuan/upload/save` : `${apiUrl}/pengajuan`;
+            let url = draftId ? `${apiUrl}/pengajuan` : `${apiUrl}/pengajuan`;
 
-                    console.log(draftId )  ;
+            console.log(draftId);
 
             const response = await fetch(url, {
                 method: method,
@@ -128,15 +137,15 @@ export default function PendaftaranOrganisasi() {
 
             const result = await response.json();
             // Asumsi: API mengembalikan ID pengajuan yang dibuat/diupdate
-if (result && result.data) {
-    console.log(result)
-    // Jika 'result' ada dan 'result.data' ada, baru set state
-    setDraftId(result.data);
-} else {
-    // Opsional: Tangani kasus di mana ID tidak ditemukan, misalnya log error atau tampilkan pesan.
-    console.error("Gagal mendapatkan draftId dari respons API:", result);
-    // setDraftId(null); // Atur ke nilai default jika perlu
-}            setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${draftId ? '(Diperbarui)' : ''}`);
+            if (result && result.data) {
+                console.log(result)
+                // Jika 'result' ada dan 'result.data' ada, baru set state
+                setDraftId(result.data);
+            } else {
+                // Opsional: Tangani kasus di mana ID tidak ditemukan, misalnya log error atau tampilkan pesan.
+                console.error("Gagal mendapatkan draftId dari respons API:", result);
+                // setDraftId(null); // Atur ke nilai default jika perlu
+            } setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${draftId ? '(Diperbarui)' : ''}`);
             return true;
 
         } catch (error: any) {
@@ -192,6 +201,48 @@ if (result && result.data) {
         setErrorMessage("Pengisian Langkah 1 dibatalkan. Data form tidak direset secara otomatis.");
         // Untuk mereset: Anda bisa menambahkan `reset()` jika `reset` tersedia dari `useForm`
     }
+    const [formData, setFormData] = useState<FormData>({ nama_file: '', file: '', form_uuid: '' });
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+    const uploadFile = async () => {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const submissionData = new FormData();
+
+        // Append data teks
+        submissionData.append('nama_file', formData.nama_file);
+        submissionData.append('file', formData.file);
+        submissionData.append('form_uuid', draftId ? draftId : '');
+
+        // Append file
+        if (fotoKtp) {
+            submissionData.append('fotoKtp', fotoKtp, fotoKtp.name);
+        }
+        if (foto3x4) {
+            submissionData.append('foto3x4', foto3x4, foto3x4.name);
+        }
+
+        setProses(true);
+        try {
+            const response = await fetch(`${API_URL}/pengajuan/upload-file`, {
+                method: 'POST',
+                body: submissionData,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) {
+                throw new Error('cant fetch data opd');
+            }
+            const result = await response.json();
+            // console.log(data);
+        } catch (err) {
+            console.log('gagal mendapatkan data pohon dari opd', err);
+        } finally {
+            setProses(false);
+        }
+    };
 
     // Fungsi Submit Akhir (Step 2)
     const onSubmit: SubmitHandler<FormValue> = async (data) => {
@@ -215,6 +266,7 @@ if (result && result.data) {
         // Simulasikan pengiriman data Step 1 + File Upload Metadata.
         const finalData = {
             id: draftId, // Menggunakan ID yang didapat dari Step 1
+            user_id: Number(user_id),
             nomor_induk: data.nomor_induk,
             nama: data.nama,
             tempat_tanggal_lahir: `${data.tempat_lahir}, ${data.tanggal_lahir}`,
@@ -235,7 +287,7 @@ if (result && result.data) {
         // TODO: Anda perlu menambahkan logic untuk mengupload fotoKtp dan foto3x4
         // menggunakan FormData ke endpoint yang sesuai (misalnya /pengajuan/upload/draftId)
         // sebelum atau sesudah mengirimkan finalData, tergantung desain API Anda.
-
+        // console.log(finalData)
         try {
             setProses(true);
 
@@ -485,10 +537,17 @@ if (result && result.data) {
                         {step === 2 && (
                             <div className="space-y-6">
                                 <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Langkah 2: Upload Dokumen Wajib</h2>
+
+                                {errorMessage && (
+                                    <div className="p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg text-sm font-medium">
+                                        🛑 Error: {errorMessage}
+                                    </div>
+                                )}
+
                                 <p className="text-sm text-gray-600">Mohon siapkan dan unggah file gambar (JPG/PNG) untuk KTP dan foto 3x4.</p>
 
                                 {/* Foto KTP */}
-                                <div className="p-4 border rounded-lg bg-gray-50">
+                                <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
                                     <label htmlFor="fotoKtp" className="block text-sm font-bold mb-2 text-gray-800">1. Upload Foto KTP (Wajib)</label>
                                     <input
                                         type="file"
@@ -498,18 +557,30 @@ if (result && result.data) {
                                             const file = e.target.files ? e.target.files[0] : null;
                                             setFotoKtp(file);
                                             setErrorMessage(null); // Clear error on change
+                                            if (file) {
+                                                uploadFile()
+                                            }
                                         }}
-                                        className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                                         required
                                     />
-                                    {fotoKtp && (
-                                        <p className="text-xs text-gray-500 mt-2">File Terpilih: **{fotoKtp.name}**</p>
+
+                                    {/* FILE TERUPLOAD FOTO KTP */}
+                                    {fotoKtp ? (
+                                        <div className="mt-3 p-3 bg-green-100 border border-green-300 text-green-800 rounded-md flex items-center justify-between transition duration-300">
+                                            <p className="text-sm font-medium flex items-center">
+                                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+                                                File Terpilih: <strong className="ml-1 truncate">{fotoKtp.name}</strong>
+                                            </p>
+                                            <span className="text-xs font-bold bg-green-600 text-white px-2 py-0.5 rounded-full">TERUPLOAD</span>
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-red-500 mt-2">Foto KTP wajib diunggah.</p>
                                     )}
-                                    {!fotoKtp && <p className="text-xs text-red-500 mt-1">Foto KTP wajib diunggah.</p>}
                                 </div>
 
                                 {/* Foto 3x4 */}
-                                <div className="p-4 border rounded-lg bg-gray-50">
+                                <div className="p-4 border border-gray-200 rounded-lg bg-gray-50 shadow-sm">
                                     <label htmlFor="foto3x4" className="block text-sm font-bold mb-2 text-gray-800">2. Upload Foto 3x4 (Wajib)</label>
                                     <input
                                         type="file"
@@ -520,13 +591,22 @@ if (result && result.data) {
                                             setFoto3x4(file);
                                             setErrorMessage(null); // Clear error on change
                                         }}
-                                        className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        className="w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
                                         required
                                     />
-                                    {foto3x4 && (
-                                        <p className="text-xs text-gray-500 mt-2">File Terpilih: **{foto3x4.name}**</p>
+
+                                    {/* FILE TERUPLOAD FOTO 3X4 */}
+                                    {foto3x4 ? (
+                                        <div className="mt-3 p-3 bg-green-100 border border-green-300 text-green-800 rounded-md flex items-center justify-between transition duration-300">
+                                            <p className="text-sm font-medium flex items-center">
+                                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"></path></svg>
+                                                File Terpilih: <strong className="ml-1 truncate">{foto3x4.name}</strong>
+                                            </p>
+                                            <span className="text-xs font-bold bg-green-600 text-white px-2 py-0.5 rounded-full">TERUPLOAD</span>
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-red-500 mt-2">Foto 3x4 wajib diunggah.</p>
                                     )}
-                                    {!foto3x4 && <p className="text-xs text-red-500 mt-1">Foto 3x4 wajib diunggah.</p>}
                                 </div>
 
                                 {/* Navigation Buttons Step 2 */}
@@ -534,21 +614,30 @@ if (result && result.data) {
                                     <button
                                         type="button"
                                         onClick={prevStep}
-                                        className="w-1/2 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition duration-300 font-bold shadow-md"
+                                        className="w-1/2 bg-gray-500 text-white py-3 rounded-lg hover:bg-gray-600 transition duration-300 font-bold shadow-md disabled:opacity-50"
                                         disabled={proses}
                                     >
                                         &larr; Kembali
                                     </button>
                                     <button
                                         type="submit"
-                                        className="w-1/2 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-bold shadow-lg disabled:bg-green-300"
-                                        
+                                        className="w-1/2 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 font-bold shadow-lg disabled:bg-green-300 disabled:cursor-not-allowed"
+                                        disabled={proses || !fotoKtp || !foto3x4}
                                     >
-                                        {proses ? 'Mengirim...' : 'Submit Pendaftaran'}
+                                        {proses ? (
+                                            <span className="flex items-center justify-center">
+                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                Mengirim...
+                                            </span>
+                                        ) : 'Submit Pendaftaran'}
                                     </button>
                                 </div>
                             </div>
                         )}
+                        {/* MODIFIKASI BERAKHIR DI SINI */}
                     </form>
                 </main>
             </div>

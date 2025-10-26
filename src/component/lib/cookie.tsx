@@ -16,7 +16,7 @@ export const login = async (username: string, password: string): Promise<boolean
     };
     try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`http://172.20.10.10:8081/kta/api/auth/login`, {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: headersWithAuth,
             body: JSON.stringify({ username, password }),
@@ -31,6 +31,7 @@ export const login = async (username: string, password: string): Promise<boolean
                 const token = data.data.access_token;
                 // Simpan token di cookie
                 document.cookie = `token=${token}; path=/;`;
+                document.cookie = `user_id=${data.data.profile.id}; path=/;`;
                 alert("Login Berhasil")
 
                 return true;
