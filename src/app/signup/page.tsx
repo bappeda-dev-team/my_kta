@@ -48,6 +48,7 @@ const SignUpPage = () => {
   const [IsSignUp, setIsSignUp] = useState<boolean>(false);
 
   const [DataForm, setDataForm] = useState<any>(null);
+  const [ResponseApi, setResponseApi] = useState<any>(null);
 
   const [Nama, setNama] = useState<string>("");
   const [Username, setUsername] = useState<string>("");
@@ -97,31 +98,33 @@ const SignUpPage = () => {
 
     // Simulasikan pendaftaran
     // console.log('Form Data Pendaftaran:', formData);
-    setDataForm(data);
-    console.log(data);
-    setIsSignUp(true);
-    // try {
-    //   const response = await fetch(`${API_URL}/auth/send-otp`, {
-    //     method: "POST",
-    //     headers: headersWithAuth,
-    //     body: JSON.stringify(formData),
-    //   });
-    //   const result = await response.json();
-    //   if (result.statusCode === 200) {
-    //     alert("Berhasil menambahkan data");
-    //     // console.log(result);
-    //     // router.push("/verifikasiOTP");
-    //   } else if(result.statusCode === 400) {
-    //     alert(result.data);
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
+    try {
+      const response = await fetch(`${API_URL}/auth/send-otp`, {
+        method: "POST",
+        headers: headersWithAuth,
+        body: JSON.stringify(formData),
+      });
+      const result = await response.json();
+      if (result.statusCode === 200) {
+        alert("Berhasil menambahkan data");
+        setDataForm(data);
+        console.log(data);
+        setIsSignUp(true);
+        console.log(result);
+        setResponseApi(result.data);
+        // console.log(result);
+        // router.push("/verifikasiOTP");
+      } else if(result.statusCode === 400) {
+        alert(result.data);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   if(IsSignUp){
     return(
-      <OTP dataRegis={DataForm}/>
+      <OTP dataRegis={DataForm} response={ResponseApi}/>
     )
   } else {
     return (

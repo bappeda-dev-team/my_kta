@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import { MailCheck } from 'lucide-react'; 
+import Image from 'next/image';
 
 interface DataRegis {
   nama: string;
@@ -13,10 +14,11 @@ interface DataRegis {
 
 interface OTP {
     dataRegis: DataRegis | null;
+    response: any;
 }
 
 
-const OTP: React.FC<OTP> = ({ dataRegis }) => {
+const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
   // useState diberi tipe string array
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -98,7 +100,7 @@ const OTP: React.FC<OTP> = ({ dataRegis }) => {
         setMessage('Kode OTP baru telah dikirim.');
     }, 1000);
   };
-
+console.log(dataRegis);
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4 font-sans">
       <div className="w-full max-w-sm bg-white p-8 rounded-xl shadow-2xl text-center">
@@ -138,6 +140,10 @@ const OTP: React.FC<OTP> = ({ dataRegis }) => {
             </p>
           )}
 
+          <div className='flex items-center justify-center w-full my-4 gap-4'>
+            <Image src={response?.captcha.img} width={180} height={70} alt="Captcha" />
+          </div>
+
           <button
             type="submit"
             disabled={isSubmitting || otp.join('').length !== 6}
@@ -170,6 +176,10 @@ const OTP: React.FC<OTP> = ({ dataRegis }) => {
             <p>{dataRegis?.username || "-"}</p>
             <p>{dataRegis?.password || "-"}</p>
             <p>{dataRegis?.tipe_akun || "-"}</p>
+        </div>
+        <div className="text-orange-500">
+          <p>{response?.captcha.img}</p>
+          <p>{response?.captcha.key}</p>
         </div>
       </div>
     </main>
