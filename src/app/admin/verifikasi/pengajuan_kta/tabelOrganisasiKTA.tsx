@@ -91,6 +91,7 @@ export default function TabelOrganisasiKTA() {
         berlaku_dari?: string;
         berlaku_sampai?: string;
         dibuat_di?: string;
+        tanggal_terbit?: string;
         tertanda?: {
             nama: string,
             tanda_tangan: string,
@@ -162,6 +163,21 @@ export default function TabelOrganisasiKTA() {
         setIsSubmitting(false);
         setSelectedItemForRejection(null); // Clear selected item
     };
+
+      // Helper untuk menampilkan baris data
+    type DataRowProps = {
+        label: string;
+        value: React.ReactNode;
+        labelWidthClass?: string;
+    };
+
+    const DataRow: React.FC<DataRowProps> = ({ label, value, labelWidthClass = 'w-40' }) => (
+        <div className="flex text-xs mb-0.5">
+            <span className={`flex-shrink-0 ${labelWidthClass} font-normal`}>{label}</span>
+            <span className="flex-shrink-0 mr-1">:</span>
+            <span className="flex-grow font-bold">{value}</span>
+        </div>
+    );
 
 
     return (
@@ -328,29 +344,155 @@ export default function TabelOrganisasiKTA() {
                             </table>
                         </div>
 
-                        {/* Kartu yang akan dicetak - Hanya terlihat saat itemToPrint tidak null dan saat dicetak */}
-                        {itemToPrint && (
-                            <div className="print-only-card fixed inset-0 flex items-start justify-right bg-white z-50 p-4">
-                                <div className="card-container border border-gray-300 rounded-lg shadow-lg p-6 bg-white flex flex-col items-center justify-center">
-                                    <h2 className="text-xl font-bold mb-2 text-center">{itemToPrint.nama}</h2>
-                                    {/* <div className="flex justify-center mb-4">
-                                        {photos[itemToPrint.id]?.threeByFour ? (
-                                            <img src={photos[itemToPrint.id].threeByFour} alt="Foto 3x4" className="w-24 h-32 object-cover border-2 border-gray-300" />
-                                        ) : (
-                                            <img src="https://placehold.co/96x128/E0E0E0/555555?text=3x4" alt="Placeholder 3x4" className="w-24 h-32 object-cover border-2 border-gray-300" />
-                                        )}
-                                    </div> */}
-                                    <div className="text-sm text-gray-700 text-center">
-                                        <p className="mb-1"><span className="font-semibold">Nomor Induk Ketua:</span> {itemToPrint.nomor_induk}</p>
-                                        <p className="mb-1"><span className="font-semibold">Tempat/Tgl Lahir:</span> {itemToPrint.tempat_lahir}, {itemToPrint.tanggal_lahir ? new Date(itemToPrint.tanggal_lahir).toLocaleDateString() : ''}</p>
-                                        <p className="mb-1"><span className="font-semibold">Jenis Kelamin:</span> {itemToPrint.jenis_kelamin}</p>
-                                        <p className="mb-1"><span className="font-semibold">Alamat:</span> {itemToPrint.alamat}</p>
-                                        <p className="mb-1"><span className="font-semibold">Induk Organisasi:</span> {itemToPrint.induk_organisasi}</p>
-                                        <p className="mb-1"><span className="font-semibold">Jumlah Anggota:</span> {itemToPrint.jumlah_anggota}</p>
-                                    </div>
+                             {/* --- CSS untuk Cetak --- */}
+            <style>
+                {`
+                @media print {
+                    /* Sembunyikan semua elemen kecuali kartu cetak */
+                    body > * {
+                        visibility: hidden;
+                    }
+
+                    /* Tampilkan hanya kartu cetak */
+                    .card-print-area {
+                        visibility: visible !important;
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                        background: white;
+                        box-shadow: none;
+                    }
+
+                    /* Atur ukuran kartu agar sesuai dengan format kertas horizontal (landscape) */
+                    .card-container {
+                        width: 250mm !important; /* Contoh lebar kartu: 250mm */
+                        height: 148mm !important; /* Contoh tinggi kartu: 148mm (A5 landscape) */
+                        margin: 10mm; /* Margin sedikit dari tepi kertas */
+                        border: 1px solid black !important; /* Border hitam saat cetak */
+                        box-shadow: none !important;
+                        border-radius: 0 !important;
+                    }
+
+                    .text-3xs {
+                        font-size: 7pt; /* Font sangat kecil untuk cetak */
+                    }
+                    .text-2xs {
+                        font-size: 8pt;
+                    }
+                    .text-xs {
+                        font-size: 9pt;
+                    }
+                    .text-sm {
+                        font-size: 10pt;
+                    }
+                }
+                `}
+            </style>
+
+
+            {/* --- Tampilan Kartu (Area Cetak) --- */}
+            {itemToPrint && (
+                <div className="card-print-area w-full max-w-4xl bg-white shadow-xl rounded-xl p-0.5">
+                    <div className="card-container flex border border-gray-900 rounded-lg p-3 w-full h-auto min-h-[300px] text-gray-900">
+
+                        {/* --- Kolom Kiri: Header & Data Personal --- */}
+                        <div className="flex flex-col w-1/2 pr-3 border-r border-gray-900">
+                            
+                            {/* Header Instansi */}
+                            <div className="flex items-start mb-4 border-b border-gray-900 pb-2">
+                                {/* Logo (SVG Sederhana untuk simulasi) */}
+                                <div className="flex-shrink-0 w-12 h-12 mr-3 bg-red-800 flex items-center justify-center rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                                    </svg>
+                                </div>
+                                <div className="text-left leading-tight">
+                                    <p className="text-2xs font-bold uppercase">PEMERINTAH KABUPATEN NGAWI</p>
+                                    <p className="text-base font-extrabold uppercase -mt-0.5">DINAS PENDIDIKAN DAN KEBUDAYAAN</p>
+                                    <p className="text-3xs mt-0.5">Jalan A.Yani No.05 Ngawi, Telp: 0351-749198</p>
                                 </div>
                             </div>
-                        )}
+
+                            {/* Judul Kartu */}
+                            <p className="text-sm font-bold text-center border border-gray-900 px-2 py-0.5 mb-2">
+                                KARTU NOMOR INDUK ORGANISASI KESENIAN
+                            </p>
+
+                            {/* Data Personal */}
+                            <div className="flex flex-col space-y-0.5">
+                                <DataRow label="NAMA" value={itemToPrint.nama} labelWidthClass='w-24' />
+                                <DataRow label="JENIS KELAMIN" value={itemToPrint.jenis_kelamin} labelWidthClass='w-24' />
+                                <DataRow
+                                    label="TEMPAT/TGL LAHIR"
+                                    value={`${itemToPrint.tempat_lahir}, ${itemToPrint.tanggal_lahir ? new Date(itemToPrint.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}`}
+                                    labelWidthClass='w-24'
+                                />
+                                {/* Alamat menggunakan layout khusus karena panjang */}
+                                <div className="flex text-xs">
+                                    <span className="w-24 flex-shrink-0 font-normal">ALAMAT</span>
+                                    <span className="flex-shrink-0 mr-1">:</span>
+                                    <span className="flex-grow font-bold leading-tight">
+                                        {itemToPrint.alamat}
+                                    </span>
+                                </div>
+                                {/* Induk Organisasi menggunakan layout khusus karena panjang */}
+                                <div className="flex text-xs mt-1">
+                                    <span className="w-24 flex-shrink-0 font-normal">INDUK ORGANISASI</span>
+                                    <span className="flex-shrink-0 mr-1">:</span>
+                                    <span className="flex-grow font-bold leading-tight">
+                                        {itemToPrint.induk_organisasi}
+                                    </span>
+                                </div>
+                                <DataRow label="JUMLAH ANGGOTA" value={itemToPrint.jumlah_anggota} labelWidthClass='w-24' />
+                            </div>
+                        </div>
+
+                        {/* --- Kolom Kanan: Nomor Induk & Tanda Tangan --- */}
+                        <div className="flex flex-col w-1/2 pl-3">
+
+                            {/* Header Kanan */}
+                            <div className="mb-4">
+                                <p className="text-xs font-bold uppercase mb-2">KARTU NOMOR INDUK ORGANISASI KESENIAN</p>
+                                <DataRow label="NOMOR INDUK" value={itemToPrint.nomor_induk} labelWidthClass='w-40' />
+                                <DataRow label="KABUPATEN/KODYA" value={itemToPrint.daerah} labelWidthClass='w-40' />
+                                <DataRow label="BERLAKU DARI TGL." value={itemToPrint.berlaku_dari} labelWidthClass='w-40' />
+                                <DataRow label="SAMPAI TGL." value={itemToPrint.berlaku_sampai} labelWidthClass='w-40' />
+                            </div>
+
+                            {/* Tanda Tangan */}
+                            <div className="flex flex-col items-center mt-2">
+                                <p className="text-xs text-right w-full mb-1">{itemToPrint.tanggal_terbit}</p>
+                                <div className="text-center text-xs leading-tight mb-2">
+                                    <p className="font-semibold">Kepala Dinas</p>
+                                    <p>Pendidikan Dan Kebudayaan</p>
+                                    <p>Kabupaten Ngawi</p>
+                                </div>
+
+                                {/* Kotak Foto 3x4 */}
+                                <div className="my-4">
+                                    <div className="w-20 h-28 border border-gray-700 bg-gray-50 flex items-baseline justify-center text-xs text-gray-500">
+                                        {/* Foto 3x4 Placeholder */}
+                                    </div>
+                                </div>
+
+
+                                <div className="text-center text-xs leading-snug mt-4">
+                                    <p className="font-bold border-b border-gray-900 inline-block">
+                                        {itemToPrint.tertanda?.nama}
+                                    </p>
+                                    <p className="mt-1">{itemToPrint.tertanda?.jabatan}</p>
+                                    <p>NIP: {itemToPrint.tertanda?.nip}</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            )}
 
 {/* Modal Penolakan */}
                 {showRejectModal && (
