@@ -83,9 +83,9 @@ const SignUpPage = () => {
       nama: data.nama,
       username: data.username,
       email: data.email,
-      password: data.password,
       nomor_telepon: data.nomor_telepon,
-      tipe_akun: data.tipe_akun,
+      // password: data.password,
+      // tipe_akun: data.tipe_akun,
     };
     // console.log(formData);
     try {
@@ -100,6 +100,7 @@ const SignUpPage = () => {
         setDataForm(data);
         console.log(data);
         setIsSignUp(true);
+        setResponseApi(result.data);
       } else if (result.statusCode === 400) {
         alert(result.data);
         setIsSignUp(false);
@@ -127,7 +128,7 @@ const SignUpPage = () => {
             {/* 1. Nama Lengkap */}
             <InputField
               {...register('nama', { required: true })}
-              icon={<User className="h-5 w-5 text-gray-400" />}
+              icon={<User className="h-5 w-5 text-gray-700" />}
               label="Nama Lengkap"
               placeholder="Masukkan Nama Lengkap Anda"
               type="text"
@@ -137,7 +138,7 @@ const SignUpPage = () => {
             {/* 2. Username */}
             <InputField
               {...register('username', { required: true })}
-              icon={<User className="h-5 w-5 text-gray-400" />}
+              icon={<User className="h-5 w-5 text-gray-700" />}
               label="Username"
               placeholder="Pilih Username Anda"
               type="text"
@@ -150,7 +151,7 @@ const SignUpPage = () => {
                 required: true,
                 pattern: /^\S+@\S+\.\S+$/
               })}
-              icon={<Mail className="h-5 w-5 text-gray-400" />}
+              icon={<Mail className="h-5 w-5 text-gray-700" />}
               label="Email"
               placeholder="Masukkan Alamat Email Anda"
               type="email"
@@ -167,7 +168,7 @@ const SignUpPage = () => {
               </label>
               <div className="relative rounded-lg shadow-sm">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Lock className="h-5 w-5 text-gray-700" />
                 </div>
                 <input
                   {...register('password', { required: true, minLength: 8 })}
@@ -197,7 +198,7 @@ const SignUpPage = () => {
                 // minLength: 10,
                 // maxLength: 15
               })}
-              icon={<Phone className="h-5 w-5 text-gray-400" />}
+              icon={<Phone className="h-5 w-5 text-gray-700" />}
               label="Nomor Telepon / WhatsApp"
               placeholder="Cth: 08123456789"
               type="tel"
@@ -226,7 +227,7 @@ const SignUpPage = () => {
                   <option value="Pelaku Seni">Pelaku Seni</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown className="h-5 w-5 text-gray-700" />
                 </div>
               </div>
             </div>
@@ -235,7 +236,11 @@ const SignUpPage = () => {
               type="submit"
               className="w-full py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-[1.01] shadow-md hover:shadow-lg"
             >
-              Kirim Kode OTP
+              {Loading ? 
+              'Loading'
+              :
+              'Kirim Kode OTP'
+              }
             </button>
           </form>
 
