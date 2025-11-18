@@ -48,17 +48,16 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
     ...headers, // Pastikan Anda menyertakan headers lain yang mungkin sudah ada
     'Authorization': `Basic ${credentials}`
   };
-
-  // useRef diberi tipe array dari HTMLInputElement
   const inputRefs = useRef<HTMLInputElement[]>([]);
 
-  // Fokuskan input pertama saat komponen dimuat
   useEffect(() => {
-    // Pastikan referensi input pertama ada sebelum difokuskan
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
   }, []);
+  useEffect(() => {
+    console.log(response);
+  }, [response])
 
   // Handler perubahan input dengan tipe yang spesifik dari React
   const handleChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
@@ -76,7 +75,6 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
       inputRefs.current[index + 1]?.focus();
     }
   };
-
   // Handler penekanan tombol (untuk backspace) dengan tipe yang spesifik dari React
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
     // Jika tombol backspace ditekan pada input kosong, pindah ke input sebelumnya
@@ -88,7 +86,6 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
   // Handler verifikasi dengan tipe yang spesifik dari React
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,8 +96,8 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
       nama: dataRegis?.nama,
       username: dataRegis?.username,
       email: dataRegis?.email,
-      password: dataRegis?.password,
       nomor_telepon: dataRegis?.nomor_telepon,
+      password: dataRegis?.password,
       tipe_akun: dataRegis?.tipe_akun,
       otp_code: finalOtp,
       captcha_token: response?.key,
@@ -113,7 +110,7 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
     } else {
       console.log(formData);
       try {
-        const response = await fetch(`${API_URL}/auth/send-otp`, {
+        const response = await fetch(`${API_URL}/auth/verify-otp-and-signup`, {
           method: "POST",
           headers: headersWithAuth,
           body: JSON.stringify(formData),
@@ -190,7 +187,8 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
 
           <button
             type="submit"
-            disabled={isSubmitting || otp.join('').length !== 6}
+            disabled={isSubmitting}
+            // disabled={isSubmitting || otp.join('').length !== 6}
             className={`w-full py-3 px-4 text-white font-bold rounded-lg transition duration-300 ease-in-out ${isSubmitting || otp.join('').length !== 6
               ? 'bg-blue-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
@@ -211,18 +209,6 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
             Kirim Ulang
           </button>
         </div>
-        {/* <div className="text-blue-500">
-          <p>{dataRegis?.nama || "tanpa nama"}</p>
-          <p>{dataRegis?.email || "-"}</p>
-          <p>{dataRegis?.nomor_telepon || "-"}</p>
-          <p>{dataRegis?.username || "-"}</p>
-          <p>{dataRegis?.password || "-"}</p>
-          <p>{dataRegis?.tipe_akun || "-"}</p>
-        </div>
-        <div className="text-orange-500">
-          <p>{response?.captcha.img}</p>
-          <p>{response?.captcha.key}</p>
-        </div> */}
       </div>
     </main>
   );
