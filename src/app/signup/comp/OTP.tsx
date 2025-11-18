@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import { MailCheck } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface DataRegis {
   nama: string;
@@ -34,7 +35,10 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [Capca, setCapca] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [Loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
+
+  const router = useRouter();
   const USERNAME_API = process.env.NEXT_PUBLIC_API_USERNAME || "-";
   const PASS_API = process.env.NEXT_PUBLIC_API_PASSWORD || "-";
 
@@ -100,32 +104,37 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
       password: dataRegis?.password,
       tipe_akun: dataRegis?.tipe_akun,
       otp_code: finalOtp,
-      captcha_token: response?.key,
-      captcha_code: ""
+      captcha_token: response?.captcha?.key,
+      captcha_code: Capca,
     };
 
-    if (finalOtp.length !== 6) {
-      setMessage('Kode OTP harus 6 digit.');
-      return;
-    } else {
-      console.log(formData);
-      try {
-        const response = await fetch(`${API_URL}/auth/verify-otp-and-signup`, {
-          method: "POST",
-          headers: headersWithAuth,
-          body: JSON.stringify(formData),
-        });
-        const result = await response.json();
-        if (result.statusCode === 200) {
-          alert("Berhasil menambahkan data");
-          setMessage('verifikasi berhasil');
-        } else if (result.statusCode === 400) {
-          alert(result.data);
+    // console.log(formData);
+      if (finalOtp.length !== 6) {
+        setMessage('Kode OTP harus 6 digit.');
+        return;
+      } else {
+        console.log(formData);
+        try {
+          setLoading(true);
+          const response = await fetch(`${API_URL}/auth/verify-otp-and-signup`, {
+            method: "POST",
+            headers: headersWithAuth,
+            body: JSON.stringify(formData),
+          });
+          const result = await response.json();
+          if (result.statusCode === 200) {
+            alert("Akun Berhasil Dibuat");
+            setMessage('verifikasi berhasil');
+            router.push("/login")
+          } else if (result.statusCode === 400) {
+            alert(result.data);
+          }
+        } catch (err) {
+          console.log(err);
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.log(err);
       }
-    }
   };
 
   const handleResend = () => {
@@ -176,25 +185,27 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
             </p>
           )}
 
-          <div className='flex items-center justify-center w-full my-4 gap-4'>
+          <div className='flex flex-col items-center justify-center w-full my-4 gap-4'>
             <Image src={response?.captcha.img} width={180} height={70} alt="Captcha" />
             <input
               id='captcha_code'
+              className='border '
               type="text"
               value={Capca}
+              onChange={(e: any) => setCapca(e.target.value)}
             />
           </div>
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            // disabled={isSubmitting || otp.join('').length !== 6}
-            className={`w-full py-3 px-4 text-white font-bold rounded-lg transition duration-300 ease-in-out ${isSubmitting || otp.join('').length !== 6
+            disabled={Loading}
+            // disabled={Loading || otp.join('').length !== 6}
+            className={`w-full py-3 px-4 text-white font-bold rounded-lg transition duration-300 ease-in-out ${Loading || otp.join('').length !== 6
               ? 'bg-blue-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
               }`}
           >
-            {isSubmitting ? 'Memverifikasi...' : 'Verifikasi'}
+            {Loading ? 'Memverifikasi...' : 'Verifikasi'}
           </button>
         </form>
 

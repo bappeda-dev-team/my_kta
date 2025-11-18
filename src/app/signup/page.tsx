@@ -100,6 +100,7 @@ const SignUpPage = () => {
         setDataForm(data);
         console.log(data);
         setIsSignUp(true);
+        setResponseApi(result.data);
       } else if (result.statusCode === 400) {
         alert(result.data);
         setIsSignUp(false);
@@ -235,7 +236,11 @@ const SignUpPage = () => {
               type="submit"
               className="w-full py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-[1.01] shadow-md hover:shadow-lg"
             >
-              Kirim Kode OTP
+              {Loading ? 
+              'Loading'
+              :
+              'Kirim Kode OTP'
+              }
             </button>
           </form>
 
