@@ -19,7 +19,14 @@ export default function TabelOrganisasiKTA() {
             "jenis_kelamin": "Perempuan",
             "alamat": "Jl. Kopo No. 12A, Sukajadi, Bandung",
             "profesi": "Manajer Proyek IT",
-            "dibuat_di": "Sekretariat APTI Daerah Jawa Barat"
+            "dibuat_di": "Sekretariat APTI Daerah Jawa Barat",
+            "tanggal_terbit": "2025-10-15",
+            "tertanda": {
+                "nama": "SUMARSONO,SH,M.Si ",
+                "tanda_tangan": "",
+                "jabatan": "Pembina Utama Muda",
+                "nip": "19690705199003 1 012",
+            }
         }
 
     ]);
@@ -97,7 +104,7 @@ export default function TabelOrganisasiKTA() {
             tanda_tangan: string,
             jabatan: string,
             nip: string,
-            pangkat: string
+            pangkat?: string
         }
     };
 
@@ -164,7 +171,7 @@ export default function TabelOrganisasiKTA() {
         setSelectedItemForRejection(null); // Clear selected item
     };
 
-      // Helper untuk menampilkan baris data
+    // Helper untuk menampilkan baris data
     type DataRowProps = {
         label: string;
         value: React.ReactNode;
@@ -314,11 +321,11 @@ export default function TabelOrganisasiKTA() {
                                                     {verificationStatus[item.nama] ? 'Batalkan Verifikasi' : 'Verifikasi'}
                                                 </button>
                                                 <button
-                                            onClick={() => handleRejectClick(item)}
-                                            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mr-2"
-                                        >
-                                            Tolak
-                                        </button>
+                                                    onClick={() => handleRejectClick(item)}
+                                                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mr-2"
+                                                >
+                                                    Tolak
+                                                </button>
                                                 <button
                                                     onClick={() => handlePrintCard(item)}
                                                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105"
@@ -334,19 +341,19 @@ export default function TabelOrganisasiKTA() {
                                         </tr>
                                     ))}
                                     {filteredData.length === 0 && (
-                                <tr>
-                                    <td colSpan={10} className="px-6 py-4 text-center text-gray-500">
-                                        Tidak ada data yang cocok dengan pencarian Anda.
-                                    </td>
-                                </tr>
-                            )}
+                                        <tr>
+                                            <td colSpan={10} className="px-6 py-4 text-center text-gray-500">
+                                                Tidak ada data yang cocok dengan pencarian Anda.
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
 
-                             {/* --- CSS untuk Cetak --- */}
-            <style>
-                {`
+                        {/* --- CSS untuk Cetak --- */}
+                        <style>
+                            {`
                 @media print {
                     /* Sembunyikan semua elemen kecuali kartu cetak */
                     body > * {
@@ -370,9 +377,9 @@ export default function TabelOrganisasiKTA() {
                     /* Atur ukuran kartu agar sesuai dengan format kertas horizontal (landscape) */
                     .card-container {
                         width: 250mm !important; /* Contoh lebar kartu: 250mm */
-                        height: 148mm !important; /* Contoh tinggi kartu: 148mm (A5 landscape) */
+                        height: 92mm !important; /* Contoh tinggi kartu: 148mm (A5 landscape) */
                         margin: 10mm; /* Margin sedikit dari tepi kertas */
-                        border: 1px solid black !important; /* Border hitam saat cetak */
+                        border: 4px solid black !important; /* Border hitam saat cetak */
                         box-shadow: none !important;
                         border-radius: 0 !important;
                     }
@@ -391,147 +398,164 @@ export default function TabelOrganisasiKTA() {
                     }
                 }
                 `}
-            </style>
+                        </style>
 
 
-            {/* --- Tampilan Kartu (Area Cetak) --- */}
-            {itemToPrint && (
-                <div className="card-print-area w-full max-w-4xl bg-white shadow-xl rounded-xl p-0.5">
-                    <div className="card-container flex border border-gray-900 rounded-lg p-3 w-full h-auto min-h-[300px] text-gray-900">
+                        {/* --- Tampilan Kartu (Area Cetak) --- */}
+                        {itemToPrint && (
+                            <div className="card-print-area w-full max-w-4xl bg-white shadow-xl rounded-xl p-0.5">
+                                <div className="card-container flex border border-gray-900 rounded-lg p-3 w-full h-auto min-h-[300px] text-gray-900">
 
-                        {/* --- Kolom Kiri: Header & Data Personal --- */}
-                        <div className="flex flex-col w-1/2 pr-3 border-r border-gray-900">
-                            
-                            {/* Header Instansi */}
-                            <div className="flex items-start mb-4 border-b border-gray-900 pb-2">
-                                {/* Logo (SVG Sederhana untuk simulasi) */}
-                                <div className="flex-shrink-0 w-12 h-12 mr-3 bg-red-800 flex items-center justify-center rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8">
-                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
-                                    </svg>
-                                </div>
-                                <div className="text-left leading-tight">
-                                    <p className="text-2xs font-bold uppercase">PEMERINTAH KABUPATEN NGAWI</p>
-                                    <p className="text-base font-extrabold uppercase -mt-0.5">DINAS PENDIDIKAN DAN KEBUDAYAAN</p>
-                                    <p className="text-3xs mt-0.5">Jalan A.Yani No.05 Ngawi, Telp: 0351-749198</p>
-                                </div>
-                            </div>
+                                    {/* --- Kolom Kiri: Header & Data Personal --- */}
+                                    <div className="flex flex-col w-1/2 pr-3 border-r border-gray-900">
 
-                            {/* Judul Kartu */}
-                            <p className="text-sm font-bold text-center border border-gray-900 px-2 py-0.5 mb-2">
-                                KARTU NOMOR INDUK ORGANISASI KESENIAN
-                            </p>
+                                        {/* Header Instansi */}
+                                        <div className="flex items-start mb-4 border-b border-gray-900 pb-2">
+                                            {/* Logo (SVG Sederhana untuk simulasi) */}
+                                            <div className="flex-shrink-0 w-12 h-12 mr-3 bg-red-800 flex items-center justify-center rounded-full">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8">
+                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
+                                                </svg>
+                                            </div>
+                                            <div className="text-center leading-tight">
+                                                <p className="text-2xs font-bold uppercase">PEMERINTAH KABUPATEN NGAWI</p>
+                                                <p className="text-xl font-extrabold uppercase -mt-0.5">DINAS PENDIDIKAN DAN KEBUDAYAAN</p>
+                                                <p className="text-3xs mt-0.5">Jalan A.Yani No.05 Ngawi, Telp: 0351-749198</p>
+                                            </div>
+                                        </div>
 
-                            {/* Data Personal */}
-                            <div className="flex flex-col space-y-0.5">
-                                <DataRow label="NAMA" value={itemToPrint.nama} labelWidthClass='w-24' />
-                                <DataRow label="JENIS KELAMIN" value={itemToPrint.jenis_kelamin} labelWidthClass='w-24' />
-                                <DataRow
-                                    label="TEMPAT/TGL LAHIR"
-                                    value={`${itemToPrint.tempat_lahir}, ${itemToPrint.tanggal_lahir ? new Date(itemToPrint.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}`}
-                                    labelWidthClass='w-24'
-                                />
-                                {/* Alamat menggunakan layout khusus karena panjang */}
-                                <div className="flex text-xs">
-                                    <span className="w-24 flex-shrink-0 font-normal">ALAMAT</span>
-                                    <span className="flex-shrink-0 mr-1">:</span>
-                                    <span className="flex-grow font-bold leading-tight">
-                                        {itemToPrint.alamat}
-                                    </span>
-                                </div>
-                                {/* Induk Organisasi menggunakan layout khusus karena panjang */}
-                                <div className="flex text-xs mt-1">
-                                    <span className="w-24 flex-shrink-0 font-normal">INDUK ORGANISASI</span>
-                                    <span className="flex-shrink-0 mr-1">:</span>
-                                    <span className="flex-grow font-bold leading-tight">
-                                        {itemToPrint.induk_organisasi}
-                                    </span>
-                                </div>
-                                <DataRow label="JUMLAH ANGGOTA" value={itemToPrint.jumlah_anggota} labelWidthClass='w-24' />
-                            </div>
-                        </div>
+                                        {/* Judul Kartu */}
+                                        <p className="text-sm font-bold text-center border border-gray-900 px-2 py-0.5 mb-2">
+                                            KARTU NOMOR INDUK ORGANISASI KESENIAN
+                                        </p>
 
-                        {/* --- Kolom Kanan: Nomor Induk & Tanda Tangan --- */}
-                        <div className="flex flex-col w-1/2 pl-3">
+                                        {/* Data Personal */}
+                                        <div className="text-left flex flex-col space-y-0.5">
+                                            <DataRow label="NAMA" value={itemToPrint.nama} labelWidthClass='w-24' />
+                                            <DataRow label="JENIS KELAMIN" value={itemToPrint.jenis_kelamin} labelWidthClass='w-24' />
+                                            <DataRow
+                                                label="TEMPAT/TGL LAHIR"
+                                                value={`${itemToPrint.tempat_lahir}, ${itemToPrint.tanggal_lahir ? new Date(itemToPrint.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}`}
+                                                labelWidthClass='w-24'
+                                            />
+                                            {/* Alamat menggunakan layout khusus karena panjang */}
+                                            <div className="flex text-xs">
+                                                <span className="w-24 flex-shrink-0 font-normal">ALAMAT</span>
+                                                <span className="flex-shrink-0 mr-1">:</span>
+                                                <span className="flex-grow font-bold leading-tight">
+                                                    {itemToPrint.alamat}
+                                                </span>
+                                            </div>
+                                            {/* Induk Organisasi menggunakan layout khusus karena panjang */}
+                                            <div className="flex text-xs mt-1">
+                                                <span className="w-24 flex-shrink-0 font-normal">INDUK ORGANISASI</span>
+                                                <span className="flex-shrink-0 mr-1">:</span>
+                                                <span className="flex-grow font-bold leading-tight">
+                                                    {itemToPrint.induk_organisasi}
+                                                </span>
+                                            </div>
+                                            <DataRow label="JUMLAH ANGGOTA" value={itemToPrint.jumlah_anggota} labelWidthClass='w-24' />
+                                        </div>
+                                    </div>
 
-                            {/* Header Kanan */}
-                            <div className="mb-4">
-                                <p className="text-xs font-bold uppercase mb-2">KARTU NOMOR INDUK ORGANISASI KESENIAN</p>
-                                <DataRow label="NOMOR INDUK" value={itemToPrint.nomor_induk} labelWidthClass='w-40' />
-                                <DataRow label="KABUPATEN/KODYA" value={itemToPrint.daerah} labelWidthClass='w-40' />
-                                <DataRow label="BERLAKU DARI TGL." value={itemToPrint.berlaku_dari} labelWidthClass='w-40' />
-                                <DataRow label="SAMPAI TGL." value={itemToPrint.berlaku_sampai} labelWidthClass='w-40' />
-                            </div>
+                                    {/* --- Kolom Kanan: Nomor Induk & Tanda Tangan --- */}
+                                    <div className="text-left flex flex-col w-1/2 pl-3">
 
-                            {/* Tanda Tangan */}
-                            <div className="flex flex-col items-center mt-2">
-                                <p className="text-xs text-right w-full mb-1">{itemToPrint.tanggal_terbit}</p>
-                                <div className="text-center text-xs leading-tight mb-2">
-                                    <p className="font-semibold">Kepala Dinas</p>
-                                    <p>Pendidikan Dan Kebudayaan</p>
-                                    <p>Kabupaten Ngawi</p>
-                                </div>
+                                        {/* Header Kanan */}
+                                        <div className="mb-4">
+                                            <p className="text-xs font-bold uppercase mb-2">KARTU NOMOR INDUK ORGANISASI KESENIAN</p>
+                                            <DataRow label="NOMOR INDUK" value={itemToPrint.nomor_induk} labelWidthClass='w-40' />
+                                            <DataRow label="KABUPATEN/KODYA" value={itemToPrint.daerah} labelWidthClass='w-40' />
+                                            <DataRow label="BERLAKU DARI TGL." value={itemToPrint.berlaku_dari} labelWidthClass='w-40' />
+                                            <DataRow label="SAMPAI TGL." value={itemToPrint.berlaku_sampai} labelWidthClass='w-40' />
+                                        </div>
 
-                                {/* Kotak Foto 3x4 */}
-                                <div className="my-4">
-                                    <div className="w-20 h-28 border border-gray-700 bg-gray-50 flex items-baseline justify-center text-xs text-gray-500">
-                                        {/* Foto 3x4 Placeholder */}
+                                        <div className="flex flex-col items-center mt-2 w-full">
+                                            {/* 1. Tanggal Terbit (Atas, rata kanan) */}
+                                            <p className="text-xs text-right w-full mb-1">{itemToPrint.tanggal_terbit}</p>
+
+                                            {/* 2. Container FOTO dan TANDA TANGAN (Berjejer Horizontal) */}
+                                            {/* Menggunakan justify-center untuk menengahkan seluruh blok. items-end untuk meratakan foto dan teks di bagian bawah. */}
+                                            <div className="flex justify-center w-full items-end">
+
+                                                {/* BLOK KIRI: KOTAK FOTO 3X4 */}
+                                                {/* Jarak 3x4 diletakkan di sisi kiri blok tanda tangan */}
+                                                <div className="mr-12 flex-shrink-0 mb-4">
+                                                    <div className="w-20 h-28 border-2 border-gray-600 bg-gray-50 flex items-center justify-center text-xs text-gray-500 font-semibold rounded-md shadow-sm">
+                                                        {/* Foto 3x4 Placeholder */}
+                                                        FOTO 3x4
+                                                    </div>
+                                                </div>
+
+                                                {/* BLOK KANAN: DETAIL TANDA TANGAN (Vertikal) */}
+                                                <div className="text-center text-xs leading-snug flex flex-col items-center">
+                                                    {/* Title / Jabatan di Atas */}
+                                                    <div className="leading-tight mb-2">
+                                                        <p className="font-semibold">Kepala Dinas</p>
+                                                        <p>Pendidikan Dan Kebudayaan</p>
+                                                        <p>Kabupaten Ngawi</p>
+                                                    </div>
+
+                                                    {/* Placeholder area for signature/stempel (Ruang Kosong) */}
+                                                    <div className="h-10 w-30 mb-2 mx-auto">
+                                                        {/* Ruang Kosong untuk Tanda Tangan */}
+                                                    </div>
+
+                                                    {/* Name and NIP di Bawah */}
+                                                    <div className="mt-4">
+                                                        <p className="font-bold border-b border-gray-900 inline-block px-1">
+                                                            {itemToPrint.tertanda?.nama}
+                                                        </p>
+                                                        <p className="mt-1">{itemToPrint.tertanda?.jabatan}</p>
+                                                        <p>NIP: {itemToPrint.tertanda?.nip}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
+                            </div>
+                        )}
 
-
-                                <div className="text-center text-xs leading-snug mt-4">
-                                    <p className="font-bold border-b border-gray-900 inline-block">
-                                        {itemToPrint.tertanda?.nama}
-                                    </p>
-                                    <p className="mt-1">{itemToPrint.tertanda?.jabatan}</p>
-                                    <p>NIP: {itemToPrint.tertanda?.nip}</p>
+                        {/* Modal Penolakan */}
+                        {showRejectModal && (
+                            <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-[9999] p-4">
+                                <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 scale-100 opacity-100">
+                                    <h3 className="text-2xl font-bold mb-4 text-gray-600">Alasan Penolakan</h3>
+                                    <textarea
+                                        value={rejectionReason}
+                                        onChange={(e) => setRejectionReason(e.target.value)}
+                                        rows={4}
+                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-700 resize-y"
+                                        placeholder="Masukkan alasan penolakan di sini..."
+                                    ></textarea>
+                                    <div className="mt-6 flex justify-end space-x-3">
+                                        <button
+                                            onClick={() => setShowRejectModal(false)}
+                                            className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+                                            disabled={isSubmitting}
+                                        >
+                                            Batal
+                                        </button>
+                                        <button
+                                            onClick={submitRejection}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center"
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting ? (
+                                                <svg className="animate-spin h-5 w-5 text-white mr-3" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                'Kirim Penolakan'
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
-                        </div>
-                    </div>
-                </div>
-            )}
-
-{/* Modal Penolakan */}
-                {showRejectModal && (
-                    <div className="fixed inset-0 bg-[rgba(0,0,0,0.5)] flex items-center justify-center z-[9999] p-4">
-                        <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 scale-100 opacity-100">
-                            <h3 className="text-2xl font-bold mb-4 text-gray-600">Alasan Penolakan</h3>
-                            <textarea
-                                value={rejectionReason}
-                                onChange={(e) => setRejectionReason(e.target.value)}
-                                rows={4}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-gray-700 resize-y"
-                                placeholder="Masukkan alasan penolakan di sini..."
-                            ></textarea>
-                            <div className="mt-6 flex justify-end space-x-3">
-                                <button
-                                    onClick={() => setShowRejectModal(false)}
-                                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
-                                    disabled={isSubmitting}
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    onClick={submitRejection}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center"
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? (
-                                        <svg className="animate-spin h-5 w-5 text-white mr-3" viewBox="0 0 24 24">
-                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                    ) : (
-                                        'Kirim Penolakan'
-                                    )}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                        )}
 
                     </main>
                 </div>
