@@ -29,9 +29,10 @@ export const login = async (username: string, password: string): Promise<boolean
             // console.log('data dari response : ,', data);
             try {
                 const token = data.data.access_token;
+                const user = JSON.stringify(data.data.profile);
                 // Simpan token di cookie
                 document.cookie = `token=${token}; path=/;`;
-                document.cookie = `user_id=${data.data.profile.id}; path=/;`;
+                document.cookie = `user_id=${user}; path=/;`;
                 alert("Login Berhasil")
 
                 return true;

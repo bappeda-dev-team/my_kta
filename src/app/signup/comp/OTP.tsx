@@ -34,9 +34,8 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
   // useState diberi tipe string array
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [Capca, setCapca] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [Loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState<any[]>([]);
 
   const router = useRouter();
   const USERNAME_API = process.env.NEXT_PUBLIC_API_USERNAME || "-";
@@ -59,9 +58,6 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
       inputRefs.current[0].focus();
     }
   }, []);
-  useEffect(() => {
-    console.log(response);
-  }, [response])
 
   // Handler perubahan input dengan tipe yang spesifik dari React
   const handleChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
@@ -109,42 +105,38 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
     };
 
     // console.log(formData);
-      if (finalOtp.length !== 6) {
-        setMessage('Kode OTP harus 6 digit.');
-        return;
-      } else {
-        console.log(formData);
-        try {
-          setLoading(true);
-          const response = await fetch(`${API_URL}/auth/verify-otp-and-signup`, {
-            method: "POST",
-            headers: headersWithAuth,
-            body: JSON.stringify(formData),
-          });
-          const result = await response.json();
-          if (result.statusCode === 200) {
-            alert("Akun Berhasil Dibuat");
-            setMessage('verifikasi berhasil');
-            router.push("/login")
-          } else if (result.statusCode === 400) {
-            alert(result.data);
-          }
-        } catch (err) {
-          console.log(err);
-        } finally {
-          setLoading(false);
-        }
+
+    console.log(formData);
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_URL}/auth/verify-otp-and-signup`, {
+        method: "POST",
+        headers: headersWithAuth,
+        body: JSON.stringify(formData),
+      });
+      const result = await response.json();
+      if (result.statusCode === 200 || result.statusCode  === 201) {
+        alert("Akun Berhasil Dibuat");
+        router.push("/login")
+      } else if (result.statusCode === 400) {
+        alert(result.errors);
       }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+
   };
 
-  const handleResend = () => {
-    setMessage('Mengirim ulang kode OTP...');
-    console.log('Mengirim ulang kode OTP...');
-    // Logika pengiriman ulang kode OTP
-    setTimeout(() => {
-      setMessage('Kode OTP baru telah dikirim.');
-    }, 1000);
-  };
+  // const handleResend = () => {
+  //   setMessage('Mengirim ulang kode OTP...');
+  //   console.log('Mengirim ulang kode OTP...');
+  //   // Logika pengiriman ulang kode OTP
+  //   setTimeout(() => {
+  //     setMessage('Kode OTP baru telah dikirim.');
+  //   }, 1000);
+  // };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4 font-sans">
@@ -152,12 +144,15 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
         <MailCheck className="h-12 w-12 text-blue-600 mx-auto mb-4" />
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Verifikasi Akun Anda</h1>
 
-        <p className="text-gray-600 mb-6 text-sm">
+        {/* <p className="text-gray-600 mb-6 text-sm">
           Kami telah mengirimkan kode 6 digit ke email atau nomor WhatsApp Anda.
+        </p> */}
+        <p className="text-gray-600 mb-6 text-sm">
+          Apakah Sudah benar Data diri yang di daftarkan
         </p>
 
         <form onSubmit={handleVerify} className="space-y-6">
-          <div className="flex justify-center space-x-2">
+          {/* <div className="flex justify-center space-x-2">
             {otp.map((data, index) => (
               <input
                 key={index}
@@ -177,15 +172,17 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
                 className="w-10 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 ease-in-out shadow-sm"
               />
             ))}
-          </div>
+          </div> */}
 
           {message && (
-            <p className={`text-sm ${message.includes('Berhasil') ? 'text-green-600' : message.includes('Mengirim') ? 'text-blue-600' : 'text-red-500'} font-medium`}>
-              {message}
-            </p>
+            message.map((ms: any, index: number) => (
+              <p key={index} className={`text-sm ${message.includes('Berhasil') ? 'text-green-600' : message.includes('Mengirim') ? 'text-blue-600' : 'text-red-500'} font-medium`}>
+                {message}
+              </p>
+            ))
           )}
 
-          <div className='flex flex-col items-center justify-center w-full my-4 gap-4'>
+          {/* <div className='flex flex-col items-center justify-center w-full my-4 gap-4'>
             <Image src={response?.captcha.img} width={180} height={70} alt="Captcha" />
             <input
               id='captcha_code'
@@ -194,13 +191,13 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
               value={Capca}
               onChange={(e: any) => setCapca(e.target.value)}
             />
-          </div>
+          </div> */}
 
           <button
             type="submit"
             disabled={Loading}
             // disabled={Loading || otp.join('').length !== 6}
-            className={`w-full py-3 px-4 text-white font-bold rounded-lg transition duration-300 ease-in-out ${Loading || otp.join('').length !== 6
+            className={`w-full py-3 px-4 text-white font-bold rounded-lg transition duration-300 ease-in-out cursor-pointer ${Loading
               ? 'bg-blue-400 cursor-not-allowed'
               : 'bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg'
               }`}
@@ -209,7 +206,7 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
           </button>
         </form>
 
-        <div className="mt-4 text-sm text-gray-600">
+        {/* <div className="mt-4 text-sm text-gray-600">
           Tidak menerima kode?{" "}
           <button
             onClick={handleResend}
@@ -219,7 +216,7 @@ const OTP: React.FC<OTP> = ({ dataRegis, response }) => {
           >
             Kirim Ulang
           </button>
-        </div>
+        </div> */}
       </div>
     </main>
   );
