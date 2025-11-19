@@ -1,15 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { 
-    ChevronDown, 
-    ChevronRight, 
-    LogOut, 
-    Menu, 
-    X, 
-    FileCheck, 
-    ClipboardList, 
-    PanelLeft, 
+import {
+    ChevronDown,
+    ChevronRight,
+    LogOut,
+    Menu,
+    X,
+    FileCheck,
+    ClipboardList,
+    PanelLeft,
     PanelRight,
     UserPlus,       // Ikon untuk Registrasi
     CreditCard,     // Ikon untuk KTA
@@ -21,7 +21,7 @@ export default function Sidebar() {
     const [verifikasiOpen, setVerifikasiOpen] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     // 1. Nilai default diubah menjadi false (collapsed) untuk render yang aman di server/mobile.
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false); 
+    const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
     // 2. Gunakan useEffect untuk mengatur state isSidebarExpanded berdasarkan lebar layar
     // Ini memastikan penentuan lebar (w-64 vs w-20) hanya terjadi di client setelah hydration.
@@ -31,7 +31,7 @@ export default function Sidebar() {
 
         // Atur state awal saat mount
         setIsSidebarExpanded(checkIsDesktop());
-        
+
         // Tambahkan event listener untuk penyesuaian saat resize
         const handleResize = () => {
             setIsSidebarExpanded(checkIsDesktop());
@@ -40,7 +40,7 @@ export default function Sidebar() {
         if (typeof window !== 'undefined') {
             window.addEventListener('resize', handleResize);
         }
-        
+
         // Cleanup function
         return () => {
             if (typeof window !== 'undefined') {
@@ -72,8 +72,8 @@ export default function Sidebar() {
     };
 
     const LinkItem = ({ href, icon: Icon, label, onItemClick }: LinkItemProps) => (
-        <a 
-            href={href} 
+        <a
+            href={href}
             onClick={onItemClick} // Panggil handler saat diklik
             className="flex items-center space-x-2 p-2 rounded hover:bg-purple-100 transition-colors duration-150 text-gray-700"
         >
@@ -86,17 +86,17 @@ export default function Sidebar() {
         <>
             {/* Mobile Sidebar Toggle Button */}
             <div className="md:hidden p-4 fixed top-0 left-0 z-50">
-                <button 
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     className="p-2 text-purple-600 focus:outline-none"
                 >
                     {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
             </div>
-            
+
             {/* Overlay for mobile view to close sidebar */}
             {isSidebarOpen && (
-                <div 
+                <div
                     onClick={() => setIsSidebarOpen(false)}
                     className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
                 ></div>
@@ -110,15 +110,32 @@ export default function Sidebar() {
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
             `}>
                 <div className="flex justify-between items-center mb-6">
-                    {isSidebarExpanded && <h2 className="text-xl font-bold text-purple-600">Halaman Admin</h2>}
-                    <button 
+                    {/* Mengganti Halaman Admin dengan Logo dan Nama Sibunga */}
+                    {isSidebarExpanded && (
+                        <div className="flex items-center space-x-2">
+                            <img
+                                // Menggunakan placeholder image URL. Ganti dengan URL logo Sibunga yang sebenarnya.
+                                src="/logo.png"
+                                alt="Sibunga Logo"
+                                className="h-15 w-15 rounded-md shadow-md"
+                            />
+                            <div className="flex flex-col items-start">
+                                <h2 className="text-2xl font-bold text-purple-700 leading-none">SIBUNGA</h2>
+                                <span className="text-m font-semibold text-gray-800 leading-none">Kab. Ngawi</span> {/* Warna hitam (text-gray-800) dan ukuran lebih kecil (text-sm) */}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tombol Toggle Sidebar */}
+                    <button
                         onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
                         className="p-2 rounded hover:bg-purple-100 hidden md:block text-purple-600"
                     >
+                        {/* Asumsi PanelLeft dan PanelRight adalah ikon yang diimpor */}
                         {isSidebarExpanded ? <PanelLeft size={20} /> : <PanelRight size={20} />}
                     </button>
                 </div>
-                
+
                 <div className="space-y-2 text-gray-700">
                     {/* Verifikasi Section */}
                     <div>
@@ -135,23 +152,23 @@ export default function Sidebar() {
 
                         {verifikasiOpen && isSidebarExpanded && (
                             <div className="ml-4 space-y-2 border-l border-gray-200 pl-4 py-1">
-                                <LinkItem 
-                                    href="/admin/verifikasi/registrasi" 
-                                    icon={UserPlus} 
+                                <LinkItem
+                                    href="/admin/verifikasi/registrasi"
+                                    icon={UserPlus}
                                     label="Data Registrasi"
-                                    onItemClick={handleLinkClick} 
+                                    onItemClick={handleLinkClick}
                                 />
-                                <LinkItem 
-                                    href="/admin/verifikasi/pengajuan_kta" 
-                                    icon={CreditCard} 
+                                <LinkItem
+                                    href="/admin/verifikasi/pengajuan_kta"
+                                    icon={CreditCard}
                                     label="Pengajuan KTA"
-                                    onItemClick={handleLinkClick} 
+                                    onItemClick={handleLinkClick}
                                 />
-                                <LinkItem 
-                                    href="/admin/verifikasi/pengajuan-izin" 
-                                    icon={ScrollText} 
+                                <LinkItem
+                                    href="/admin/verifikasi/pengajuan-izin"
+                                    icon={ScrollText}
                                     label="Pengajuan Izin Rekomendasi"
-                                    onItemClick={handleLinkClick} 
+                                    onItemClick={handleLinkClick}
                                 />
                             </div>
                         )}
@@ -172,23 +189,23 @@ export default function Sidebar() {
 
                         {rekapOpen && isSidebarExpanded && (
                             <div className="ml-4 space-y-2 border-l border-gray-200 pl-4 py-1">
-                                <LinkItem 
-                                    href="/admin/rekap_data/registrasi" 
-                                    icon={UserPlus} 
+                                <LinkItem
+                                    href="/admin/rekap_data/registrasi"
+                                    icon={UserPlus}
                                     label="Data Registrasi"
-                                    onItemClick={handleLinkClick} 
+                                    onItemClick={handleLinkClick}
                                 />
-                                <LinkItem 
-                                    href="/admin/rekap_data/rekap_kta" 
-                                    icon={CreditCard} 
+                                <LinkItem
+                                    href="/admin/rekap_data/rekap_kta"
+                                    icon={CreditCard}
                                     label="Pengajuan KTA"
-                                    onItemClick={handleLinkClick} 
+                                    onItemClick={handleLinkClick}
                                 />
-                                <LinkItem 
-                                    href="/admin/rekap_data/pengajuan_izin" 
-                                    icon={ScrollText} 
+                                <LinkItem
+                                    href="/admin/rekap_data/pengajuan_izin"
+                                    icon={ScrollText}
                                     label="Pengajuan Izin Rekomendasi"
-                                    onItemClick={handleLinkClick} 
+                                    onItemClick={handleLinkClick}
                                 />
                             </div>
                         )}

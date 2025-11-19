@@ -7,20 +7,20 @@ export default function TabelOrganisasiKTA() {
     const [data, setData] = useState([
         {
             "keterangan": "Data keanggotaan aktif untuk tahun periode 2025-2026",
-            "induk_organisasi": "Asosiasi Profesional Teknologi Indonesia (APTI)",
-            "nomor_induk": "APT/ORG/120250045",
-            "jumlah_anggota": "150",
-            "daerah": "Jawa Barat",
-            "berlaku_dari": "2025-11-01T00:00:00.000Z",
-            "berlaku_sampai": "2026-10-31T23:59:59.000Z",
-            "nama": "Citra Lestari",
-            "tempat_lahir": "Bandung",
-            "tanggal_lahir": "1992-07-22T00:00:00.000Z",
-            "jenis_kelamin": "Perempuan",
-            "alamat": "Jl. Kopo No. 12A, Sukajadi, Bandung",
+            "induk_organisasi": "PAGUYUBAN BUDAYA PAGUYUBAN KAWULA KARATON SURAKARTA “ PAKASA ”",
+            "nomor_induk": "400.6/81/404.301/PB/12/2025",
+            "jumlah_anggota": "150 Orang",
+            "daerah": "Ngawi",
+            "berlaku_dari": "22 JANUARI 2025",
+            "berlaku_sampai": "31 DESEMBER 2026 ",
+            "nama": "Suyono",
+            "tempat_lahir": "Sragen",
+            "tanggal_lahir": "09-03-1970",
+            "jenis_kelamin": "Laki-Laki",
+            "alamat": "DSN. PULE RT/RW. 002/001 KEL/DESA. MANTINGAN KEC.MANTINGAN, KAB. NGAWI",
             "profesi": "Manajer Proyek IT",
-            "dibuat_di": "Sekretariat APTI Daerah Jawa Barat",
-            "tanggal_terbit": "2025-10-15",
+            "dibuat_di": "Dinas Pendidikan dan Kebudayaan Kabupaten Ngawi",
+            "tanggal_terbit": "Ngawi, 22 JANUARI 2025",
             "tertanda": {
                 "nama": "SUMARSONO,SH,M.Si ",
                 "tanda_tangan": "",
@@ -190,7 +190,6 @@ export default function TabelOrganisasiKTA() {
     return (
         <>
             <div className="w-full">
-
                 <div className="min-h-screen bg-gray-100 p-4 font-sans antialiased">
                     {/* Tailwind CSS CDN dan Font Inter - Dipindahkan ke sini untuk memastikan pemuatan */}
                     <script src="https://cdn.tailwindcss.com"></script>
@@ -251,29 +250,29 @@ export default function TabelOrganisasiKTA() {
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[150px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor Induk Ketua</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[150px] text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Lengkap</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Tempat, Tanggal Lahir</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[100x] text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Induk Organisasi</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Anggota</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[90px] text-xs font-medium text-gray-500 uppercase tracking-wider">Induk Organisasi</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[100px] text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah Anggota</th>
                                         {/* <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Foto KTP</th>
                                         <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Foto 3x4</th> */}
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider">Status Verifikasi</th>
-                                        <th scope="col" className="px-6 py-3 text-center min-w-[200px] text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg no-print">Aksi</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[100px] text-xs font-medium text-gray-500 uppercase tracking-wider">Status Verifikasi</th>
+                                        <th scope="col" className="px-6 py-3 text-center min-w-[100px] text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg no-print">Aksi</th>
                                     </tr>
                                 </thead>
 
                                 <tbody className="bg-white divide-y divide-gray-200">
                                     {filteredData.map((item) => (
                                         <tr key={item.nama}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.nomor_induk}</td>
+                                            <td className="px-3 py-2 text-xs text-gray-700 font-medium">{item.nomor_induk}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.nama}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.tempat_lahir}, {new Date(item.tanggal_lahir).toLocaleDateString()}</td>
+                                            <td className="px-3 py-2 text-xs text-gray-700">{item.tempat_lahir}, {new Date(item.tanggal_lahir).toLocaleDateString()}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.jenis_kelamin}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.alamat}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.induk_organisasi}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.jumlah_anggota}</td>
+                                            <td className="px-3 py-2 text-xs text-gray-700 max-w-xs">{item.alamat}</td>
+                                            <td className="px-3 py-2 text-xs text-gray-700">{item.induk_organisasi}</td>
+                                            <td className="px-3 py-2 text-xs text-gray-700 text-center">{item.jumlah_anggota}</td>
                                             {/* <td className="px-6 py-4 text-sm text-gray-700">
                                                 <div className="flex flex-col items-center">
                                                     {photos[item.id]?.ktp ? (
@@ -311,32 +310,39 @@ export default function TabelOrganisasiKTA() {
                                                     {verificationStatus[item.nama] ? 'Terverifikasi' : 'Belum Terverifikasi'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 no-print">
-                                                <button
-                                                    onClick={() => handleVerify(item.nama)}
-                                                    className={`py-2 px-4 rounded-md text-white font-semibold transition-colors duration-200 ease-in-out shadow-md mr-2
-                            ${verificationStatus[item.nama] ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}
-                        `}
-                                                >
-                                                    {verificationStatus[item.nama] ? 'Batalkan Verifikasi' : 'Verifikasi'}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleRejectClick(item)}
-                                                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mr-2"
-                                                >
-                                                    Tolak
-                                                </button>
-                                                <button
-                                                    onClick={() => handlePrintCard(item)}
-                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/20+09okx00/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                                                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                                                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                                                        <rect x="6" y="14" width="12" height="8"></rect>
-                                                    </svg>
-                                                    Cetak
-                                                </button>
+                                            <td className="px-3 py-2 text-gray-900 no-print">
+                                                <div className="flex flex-col space-y-1">
+                                                    {/* Tombol Verifikasi/Batalkan Verifikasi */}
+                                                    <button
+                                                        onClick={() => handleVerify(item.nama)}
+                                                        className={`py-1 px-3 text-xs rounded-md text-white font-semibold transition-colors duration-200 ease-in-out shadow-md
+          ${verificationStatus[item.nama] ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'}
+        `}
+                                                    >
+                                                        {verificationStatus[item.nama] ? 'Batalkan Verifikasi' : 'Verifikasi'}
+                                                    </button>
+
+                                                    {/* Tombol Tolak */}
+                                                    <button
+                                                        onClick={() => handleRejectClick(item)}
+                                                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 text-xs rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+                                                    >
+                                                        Tolak
+                                                    </button>
+
+                                                    {/* Tombol Cetak */}
+                                                    <button
+                                                        onClick={() => handlePrintCard(item)}
+                                                        className="inline-flex items-center justify-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                                                            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                                                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                                            <rect x="6" y="14" width="12" height="8"></rect>
+                                                        </svg>
+                                                        Cetak
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -413,9 +419,7 @@ export default function TabelOrganisasiKTA() {
                                         <div className="flex items-start mb-4 border-b border-gray-900 pb-2">
                                             {/* Logo (SVG Sederhana untuk simulasi) */}
                                             <div className="flex-shrink-0 w-12 h-12 mr-3 bg-red-800 flex items-center justify-center rounded-full">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-8 h-8">
-                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2z" />
-                                                </svg>
+                                                <img src="/logo.png" alt="logo kab ngawi" />
                                             </div>
                                             <div className="text-center leading-tight">
                                                 <p className="text-2xs font-bold uppercase">PEMERINTAH KABUPATEN NGAWI</p>
@@ -471,9 +475,6 @@ export default function TabelOrganisasiKTA() {
                                         </div>
 
                                         <div className="flex flex-col items-center mt-2 w-full">
-                                            {/* 1. Tanggal Terbit (Atas, rata kanan) */}
-                                            <p className="text-xs text-right w-full mb-1">{itemToPrint.tanggal_terbit}</p>
-
                                             {/* 2. Container FOTO dan TANDA TANGAN (Berjejer Horizontal) */}
                                             {/* Menggunakan justify-center untuk menengahkan seluruh blok. items-end untuk meratakan foto dan teks di bagian bawah. */}
                                             <div className="flex justify-center w-full items-end">
@@ -490,6 +491,8 @@ export default function TabelOrganisasiKTA() {
                                                 {/* BLOK KANAN: DETAIL TANDA TANGAN (Vertikal) */}
                                                 <div className="text-center text-xs leading-snug flex flex-col items-center">
                                                     {/* Title / Jabatan di Atas */}
+                                                    {/* 1. Tanggal Terbit (Atas, rata kanan) */}
+                                                    <p className="text-xs text-center w-full mb-1">{itemToPrint.tanggal_terbit}</p>
                                                     <div className="leading-tight mb-2">
                                                         <p className="font-semibold">Kepala Dinas</p>
                                                         <p>Pendidikan Dan Kebudayaan</p>
