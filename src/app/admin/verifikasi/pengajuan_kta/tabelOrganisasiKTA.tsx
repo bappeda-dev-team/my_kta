@@ -1,35 +1,44 @@
 import React, { useState, useEffect } from 'react';
+import { getCookie } from '@/component/lib/cookie';
 
+//type data
 
 // Komponen utama aplikasi
 export default function TabelOrganisasiKTA() {
     // Contoh data untuk tabel
-    const [data, setData] = useState([
-        {
-            "keterangan": "Data keanggotaan aktif untuk tahun periode 2025-2026",
-            "induk_organisasi": "PAGUYUBAN BUDAYA PAGUYUBAN KAWULA KARATON SURAKARTA “ PAKASA ”",
-            "nomor_induk": "400.6/81/404.301/PB/12/2025",
-            "jumlah_anggota": "150 Orang",
-            "daerah": "Ngawi",
-            "berlaku_dari": "22 JANUARI 2025",
-            "berlaku_sampai": "31 DESEMBER 2026 ",
-            "nama": "Suyono",
-            "tempat_lahir": "Sragen",
-            "tanggal_lahir": "09-03-1970",
-            "jenis_kelamin": "Laki-Laki",
-            "alamat": "DSN. PULE RT/RW. 002/001 KEL/DESA. MANTINGAN KEC.MANTINGAN, KAB. NGAWI",
-            "profesi": "Manajer Proyek IT",
-            "dibuat_di": "Dinas Pendidikan dan Kebudayaan Kabupaten Ngawi",
-            "tanggal_terbit": "Ngawi, 22 JANUARI 2025",
-            "tertanda": {
-                "nama": "SUMARSONO,SH,M.Si ",
-                "tanda_tangan": "",
-                "jabatan": "Pembina Utama Muda",
-                "nip": "19690705199003 1 012",
+    const [data, setData] = useState([ ]);
+
+    const [Id, setId] = useState<any>(null);
+    
+        const token = getCookie('token');
+        useEffect(() => {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const fetchData = async () => {
+            try {
+               const response = await fetch(`${API_URL}/pengajuan`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                const result = await response.json();
+                if (data == null) {
+                    setData([]);
+                } else {
+                    setData(result.data);
+                }
+
+                console.log(result);
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
         }
+        fetchData();
+    }, [])
 
-    ]);
+
+
 
     // State untuk melacak status verifikasi per item
     const [verificationStatus, setVerificationStatus] = useState<Record<string, boolean>>({});
@@ -52,11 +61,11 @@ export default function TabelOrganisasiKTA() {
     };
 
     // Filter data berdasarkan searchTerm
-    const filteredData = data.filter(item =>
-        item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.alamat.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.induk_organisasi.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // const filteredData = data.filter(item =>
+    //     item.nama.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     item.alamat.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //     item.induk_organisasi.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
 
     // // State untuk melacak URL foto KTP dan 3x4 per item
     // const [photos, setPhotos] = useState(() => {
@@ -82,23 +91,26 @@ export default function TabelOrganisasiKTA() {
     // };
 
     // Tipe data untuk item
-    type DataItem = {
+    interface DataItem {
+        uuid?: string;
+        induk_organisasi: string;
         nomor_induk: string;
+        jumlah_anggota: string; // Diubah ke string untuk form input, lalu di-parse ke number saat submit
+        daerah?: string;
+        berlaku_dari?: string;
+        berlaku_sampai?: string;
         nama: string; // Nama Organisasi
         tempat_lahir: string; // Tempat Lahir Ketua
         tanggal_lahir: string; // Tanggal Lahir Ketua
         jenis_kelamin: string; // Jenis Kelamin Ketua
         alamat: string; // Alamat Organisasi
-        induk_organisasi: string;
-        jumlah_anggota: string; // Diubah ke string untuk form input, lalu di-parse ke number saat submit
-        keterangan?: string;
-        // Data untuk Step 2 (tidak diisi di Step 1, tapi dibutuhkan untuk onSubmit penuh)
         profesi?: string;
-        daerah?: string;
-        berlaku_dari?: string;
-        berlaku_sampai?: string;
         dibuat_di?: string;
-        tanggal_terbit?: string;
+        keterangan?: string;
+        status?: string;
+        catatan?: string;
+        file_pendukung?: string[];
+        // tanggal_terbit?: string;
         tertanda?: {
             nama: string,
             tanda_tangan: string,
@@ -264,10 +276,10 @@ export default function TabelOrganisasiKTA() {
                                 </thead>
 
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {filteredData.map((item) => (
-                                        <tr key={item.nama}>
-                                            <td className="px-3 py-2 text-xs text-gray-700 font-medium">{item.nomor_induk}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.nama}</td>
+                                    {data.map((item: DataItem, index) => (
+                                        <tr key={index}>
+                                            <td className="px-3 py-2 text-xs text-gray-700 font-medium">{item.nomor_induk || "-"}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.nama || "-"}</td>
                                             <td className="px-3 py-2 text-xs text-gray-700">{item.tempat_lahir}, {new Date(item.tanggal_lahir).toLocaleDateString()}</td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.jenis_kelamin}</td>
                                             <td className="px-3 py-2 text-xs text-gray-700 max-w-xs">{item.alamat}</td>
@@ -346,13 +358,13 @@ export default function TabelOrganisasiKTA() {
                                             </td>
                                         </tr>
                                     ))}
-                                    {filteredData.length === 0 && (
+                                    {/* {filteredData.length === 0 && (
                                         <tr>
                                             <td colSpan={10} className="px-6 py-4 text-center text-gray-500">
                                                 Tidak ada data yang cocok dengan pencarian Anda.
                                             </td>
                                         </tr>
-                                    )}
+                                    )} */}
                                 </tbody>
                             </table>
                         </div>
@@ -492,7 +504,7 @@ export default function TabelOrganisasiKTA() {
                                                 <div className="text-center text-xs leading-snug flex flex-col items-center">
                                                     {/* Title / Jabatan di Atas */}
                                                     {/* 1. Tanggal Terbit (Atas, rata kanan) */}
-                                                    <p className="text-xs text-center w-full mb-1">{itemToPrint.tanggal_terbit}</p>
+                                                    {/* <p className="text-xs text-center w-full mb-1">{itemToPrint.tanggal_terbit}</p> */}
                                                     <div className="leading-tight mb-2">
                                                         <p className="font-semibold">Kepala Dinas</p>
                                                         <p>Pendidikan Dan Kebudayaan</p>

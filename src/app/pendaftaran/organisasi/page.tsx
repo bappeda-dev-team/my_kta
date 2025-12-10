@@ -6,6 +6,7 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { parse } from "path";
 import { getCookie } from "@/component/lib/cookie";
 import { useRouter } from "next/navigation";
+import PendaftaranOrganisasiForm from "../step2_organisasi/page";
 
 // Tipe data disesuaikan untuk FormValue
 type FormValue = {
@@ -35,6 +36,7 @@ export default function PendaftaranOrganisasi() {
     const [prosesSimpanStep1, setProsesSimpanStep1] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [draftId, setDraftId] = useState<string | null>(null); // State untuk menyimpan ID draft/pengajuan jika Step 1 berhasil disimpan
+    const [Step2, setStep2] = useState<boolean>(false);
 
     const [Id, setId] = useState<any>(null);
 
@@ -68,7 +70,7 @@ export default function PendaftaranOrganisasi() {
 
     useEffect(() => {
         const user_id = getCookie('user_id');
-        if(user_id){
+        if (user_id) {
             const data = JSON.parse(user_id);
             setId(data);
         }
@@ -78,6 +80,7 @@ export default function PendaftaranOrganisasi() {
         console.error('API username or password not found in environment variables.');
     }
     const encodedCredentials = username && password ? btoa(`${username}:${password}`) : '';
+
 
 
     // Fungsi baru: Menyimpan data Step 1 (Draft)
@@ -108,49 +111,50 @@ export default function PendaftaranOrganisasi() {
         };
 
         console.log(formData)
-        router.push("/pendaftaran/step2_organisasi")
-        // try {
-        //     // Logika disesuaikan: POST untuk buat draft baru, PUT/PATCH untuk update draft
-        //     let method = draftId ? 'POST' : 'POST';
-        //     let url = draftId ? `${apiUrl}/pengajuan` : `${apiUrl}/pengajuan`;
+        // router.push("/pendaftaran/step2_organisasi")
+        try {
+            // Logika disesuaikan: POST untuk buat draft baru, PUT/PATCH untuk update draft
+            let method = draftId ? 'POST' : 'POST';
+            let url = draftId ? `${apiUrl}/pengajuan` : `${apiUrl}/pengajuan`;
 
-        //     console.log(draftId);
+            console.log(draftId);
 
-        //     const response = await fetch(url, {
-        //         method: method,
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //             'Authorization': `Bearer ${token}`,
-        //             // 'Authorization': `${encodedCredentials}`,
-        //         },
-        //         body: JSON.stringify(formData),
-        //     });
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    // 'Authorization': `${encodedCredentials}`,
+                },
+                body: JSON.stringify(formData),
+            });
 
-        //     if (!response.ok) {
-        //         const errorData = await response.json().catch(() => ({ message: response.statusText }));
-        //         throw new Error(`Gagal menyimpan draft: ${errorData.message || response.statusText}`);
-        //     }
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                throw new Error(`Gagal menyimpan draft: ${errorData.message || response.statusText}`);
+            }
 
-        //     const result = await response.json();
-        //     // Asumsi: API mengembalikan ID pengajuan yang dibuat/diupdate
-        //     if (result && result.data) {
-        //         console.log(result)
-        //         // Jika 'result' ada dan 'result.data' ada, baru set state
-        //         setDraftId(result.data);
-        //     } else {
-        //         // Opsional: Tangani kasus di mana ID tidak ditemukan, misalnya log error atau tampilkan pesan.
-        //         console.error("Gagal mendapatkan draftId dari respons API:", result);
-        //         // setDraftId(null); // Atur ke nilai default jika perlu
-        //     } setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${draftId ? '(Diperbarui)' : ''}`);
-        //     return true;
+            const result = await response.json();
+            // Asumsi: API mengembalikan ID pengajuan yang dibuat/diupdate
+            if (result && result.data) {
+                console.log(result)
+                // Jika 'result' ada dan 'result.data' ada, baru set state
+                setDraftId(result.data);
+                setStep2(true);
+            } else {
+                // Opsional: Tangani kasus di mana ID tidak ditemukan, misalnya log error atau tampilkan pesan.
+                console.error("Gagal mendapatkan draftId dari respons API:", result);
+                // setDraftId(null); // Atur ke nilai default jika perlu
+            } setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${draftId ? '(Diperbarui)' : ''}`);
+            return true;
 
-        // } catch (error: any) {
-        //     console.error('Error saving draft:', error);
-        //     setErrorMessage(error.message || 'Terjadi kesalahan saat menyimpan draft. Coba lagi.');
-        //     return false;
-        // } finally {
-        //     setProsesSimpanStep1(false);
-        // }
+        } catch (error: any) {
+            console.error('Error saving draft:', error);
+            setErrorMessage(error.message || 'Terjadi kesalahan saat menyimpan draft. Coba lagi.');
+            return false;
+        } finally {
+            setProsesSimpanStep1(false);
+        }
     }
 
 
@@ -197,7 +201,7 @@ export default function PendaftaranOrganisasi() {
         setErrorMessage("Pengisian Langkah 1 dibatalkan. Data form tidak direset secara otomatis.");
         // Untuk mereset: Anda bisa menambahkan `reset()` jika `reset` tersedia dari `useForm`
     }
-    
+
 
     // Fungsi Submit Akhir (Step 2)
     const onSubmit: SubmitHandler<FormValue> = async (data) => {
@@ -276,223 +280,226 @@ export default function PendaftaranOrganisasi() {
             setProses(false);
         }
     }
+    if (!Step2) {
+        return (
+            <>
+                <HeaderUserOrganisasi />
+                <div className="min-h-screen bg-gray-100 py-10">
+                    <main className="max-w-xl mx-auto p-6 bg-white shadow-xl rounded-xl border border-gray-200">
+                        <h1 className="text-3xl font-extrabold mb-8 text-center text-blue-800">Pendaftaran KTA Organisasi</h1>
 
-    return (
-        <>
-            <HeaderUserOrganisasi />
-            <div className="min-h-screen bg-gray-100 py-10">
-                <main className="max-w-xl mx-auto p-6 bg-white shadow-xl rounded-xl border border-gray-200">
-                    <h1 className="text-3xl font-extrabold mb-8 text-center text-blue-800">Pendaftaran KTA Organisasi</h1>
-
-                    {/* Step Indicators */}
-                    <div className="flex justify-around items-center mb-8 relative">
-                        <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-300 z-0 mx-8">
-                            <div className={`h-1 bg-blue-600 transition-all duration-500 ${step === 2 ? 'w-full' : 'w-0'}`}></div>
+                        {/* Step Indicators */}
+                        <div className="flex justify-around items-center mb-8 relative">
+                            <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-300 z-0 mx-8">
+                                <div className={`h-1 bg-blue-600 transition-all duration-500 ${step === 2 ? 'w-full' : 'w-0'}`}></div>
+                            </div>
+                            <StepIndicator number={1} title="Data Diri" isActive={step >= 1} />
+                            <StepIndicator number={2} title="Upload Dokumen" isActive={step >= 2} />
                         </div>
-                        <StepIndicator number={1} title="Data Diri" isActive={step >= 1} />
-                        <StepIndicator number={2} title="Upload Dokumen" isActive={step >= 2} />
-                    </div>
 
-                    {errorMessage && (
-                        <div className={`p-3 mb-4 rounded-lg text-sm font-medium ${errorMessage.includes('Berhasil') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {errorMessage}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-
-                        {/* STEP 1: DATA DIRI & ORGANISASI */}
-                        {step === 1 && (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Langkah 1: Informasi Organisasi & Kontak</h2>
-
-                                {/* Nomor Induk Ketua */}
-                                <FormInput
-                                    label="Nomor Induk Ketua (NIK/SIM/KITAS)"
-                                    name="nomor_induk"
-                                    control={control}
-                                    type="text"
-                                    placeholder="Masukkan nomor induk ketua"
-                                    error={errors.nomor_induk}
-                                    required={true}
-                                />
-
-                                {/* Nama Organisasi */}
-                                <FormInput
-                                    label="Nama Organisasi"
-                                    name="nama"
-                                    control={control}
-                                    type="text"
-                                    placeholder="Masukkan nama organisasi"
-                                    error={errors.nama}
-                                    required={true}
-                                />
-
-                                {/* Tempat dan Tanggal Lahir */}
-                                <div>
-                                    <label className="block text-sm font-medium mb-1 text-gray-700">Tempat, Tanggal Lahir Ketua</label>
-                                    <div className="flex gap-3">
-                                        <FormInput
-                                            name="tempat_lahir"
-                                            control={control}
-                                            type="text"
-                                            placeholder="Tempat Lahir"
-                                            className="w-1/2"
-                                            error={errors.tempat_lahir}
-                                            required={true}
-                                        />
-                                        <FormInput
-                                            name="tanggal_lahir"
-                                            control={control}
-                                            type="date"
-                                            placeholder=""
-                                            className="w-1/2"
-                                            error={errors.tanggal_lahir}
-                                            required={true}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Jenis Kelamin */}
-                                <div>
-                                    <label htmlFor="jenis_kelamin" className="block text-sm font-medium mb-1 text-gray-700">Jenis Kelamin Ketua</label>
-                                    <Controller
-                                        name="jenis_kelamin"
-                                        control={control}
-                                        rules={{ required: "Jenis kelamin wajib diisi" }}
-                                        render={({ field }) => (
-                                            <select
-                                                id="jenis_kelamin"
-                                                {...field}
-                                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
-                                                required
-                                            >
-                                                <option value="">-- Pilih --</option>
-                                                <option value="Laki-laki">Laki-laki</option>
-                                                <option value="Perempuan">Perempuan</option>
-                                            </select>
-                                        )}
-                                    />
-                                    {errors.jenis_kelamin && <p className="text-xs text-red-500 mt-1">{errors.jenis_kelamin.message}</p>}
-                                </div>
-
-                                {/* Alamat Organisasi */}
-                                <div>
-                                    <label htmlFor="alamat" className="block text-sm font-medium mb-1 text-gray-700">Alamat Organisasi</label>
-                                    <Controller
-                                        name="alamat"
-                                        control={control}
-                                        rules={{ required: "Alamat organisasi wajib diisi" }}
-                                        render={({ field }) => (
-                                            <textarea
-                                                id="alamat"
-                                                {...field}
-                                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
-                                                required
-                                                rows={3}
-                                            ></textarea>
-                                        )}
-                                    />
-                                    {errors.alamat && <p className="text-xs text-red-500 mt-1">{errors.alamat.message}</p>}
-                                </div>
-
-                                {/* Induk Organisasi */}
-                                <FormInput
-                                    label="Induk Organisasi"
-                                    name="induk_organisasi"
-                                    control={control}
-                                    type="text"
-                                    placeholder="Contoh: Pencak Silat, Paguyuban, dll."
-                                    error={errors.induk_organisasi}
-                                    required={true}
-                                />
-
-                                {/* Jumlah Anggota */}
-                                <div>
-                                    <label htmlFor="jumlah_anggota" className="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggota</label>
-                                    <Controller
-                                        name="jumlah_anggota"
-                                        control={control}
-                                        rules={{
-                                            required: "Jumlah anggota wajib diisi",
-                                            validate: value => (parseInt(value) > 0) || "Jumlah anggota minimal 1"
-                                        }}
-                                        render={({ field }) => (
-                                            <input
-                                                id="jumlah_anggota"
-                                                {...field}
-                                                type="number"
-                                                min="1"
-                                                required
-                                                className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
-                                                placeholder="Contoh: 10"
-                                            />
-                                        )}
-                                    />
-                                    {errors.jumlah_anggota && <p className="text-xs text-red-500 mt-1">{errors.jumlah_anggota.message}</p>}
-                                </div>
-
-                                {/* Keterangan (Optional) */}
-                                <div>
-                                    <label htmlFor="keterangan" className="block text-sm font-medium mb-1 text-gray-700">Keterangan (Optional)</label>
-                                    <Controller
-                                        name="keterangan"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <textarea
-                                                id="keterangan"
-                                                {...field}
-                                                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
-                                                rows={2}
-                                            ></textarea>
-                                        )}
-                                    />
-                                </div>
-
-                                {/* Navigation & Save Button Step 1 (MODIFIED) */}
-                                <div className="flex gap-4 pt-4">
-                                    {/* Tombol Batal (sebelumnya Simpan Draft) */}
-                                    <button
-                                        type="button"
-                                        onClick={handleBatal} // Fungsi Batal
-                                        disabled={prosesSimpanStep1 || proses}
-                                        className="w-1/2 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition duration-300 font-bold shadow-lg disabled:bg-red-300"
-                                    >
-                                        Batal
-                                    </button>
-
-                                    {/* Tombol Simpan & Lanjut (sebelumnya Lanjut Step 2) */}
-                                    <button
-                                        type="button"
-                                        onClick={nextStep} // nextStep akan memanggil saveStepOne internal
-                                        disabled={prosesSimpanStep1 || proses}
-                                        className="w-1/2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-bold shadow-lg disabled:bg-blue-300"
-                                    >
-                                        {/* Menambahkan Indikator Loading */}
-                                        {prosesSimpanStep1 ? (
-                                            <span className="flex items-center justify-center">
-                                                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                Menyimpan & Lanjut...
-                                            </span>
-                                        ) : 'Simpan & Lanjut ke Langkah 2 \u2192'}
-                                    </button>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-2 text-center">
-                                    *Data harus valid dan berhasil disimpan (draft) sebelum dapat melanjutkan ke Langkah 2.
-                                    {draftId && <span className="text-blue-600 font-medium block"> Draft ID: {draftId}</span>}
-                                </p>
+                        {errorMessage && (
+                            <div className={`p-3 mb-4 rounded-lg text-sm font-medium ${errorMessage.includes('Berhasil') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {errorMessage}
                             </div>
                         )}
 
-                        {/* MODIFIKASI BERAKHIR DI SINI */}
-                    </form>
-                </main>
-            </div>
-        </>
-    );
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
+                            {/* STEP 1: DATA DIRI & ORGANISASI */}
+                            {step === 1 && (
+                                <div className="space-y-4">
+                                    <h2 className="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">Langkah 1: Informasi Organisasi & Kontak</h2>
+
+                                    {/* Nomor Induk Ketua */}
+                                    <FormInput
+                                        label="Nomor Induk Ketua (NIK/SIM/KITAS)"
+                                        name="nomor_induk"
+                                        control={control}
+                                        type="text"
+                                        placeholder="Masukkan nomor induk ketua"
+                                        error={errors.nomor_induk}
+                                        required={true}
+                                    />
+
+                                    {/* Nama Organisasi */}
+                                    <FormInput
+                                        label="Nama Organisasi"
+                                        name="nama"
+                                        control={control}
+                                        type="text"
+                                        placeholder="Masukkan nama organisasi"
+                                        error={errors.nama}
+                                        required={true}
+                                    />
+
+                                    {/* Tempat dan Tanggal Lahir */}
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1 text-gray-700">Tempat, Tanggal Lahir Ketua</label>
+                                        <div className="flex gap-3">
+                                            <FormInput
+                                                name="tempat_lahir"
+                                                control={control}
+                                                type="text"
+                                                placeholder="Tempat Lahir"
+                                                className="w-1/2"
+                                                error={errors.tempat_lahir}
+                                                required={true}
+                                            />
+                                            <FormInput
+                                                name="tanggal_lahir"
+                                                control={control}
+                                                type="date"
+                                                placeholder=""
+                                                className="w-1/2"
+                                                error={errors.tanggal_lahir}
+                                                required={true}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Jenis Kelamin */}
+                                    <div>
+                                        <label htmlFor="jenis_kelamin" className="block text-sm font-medium mb-1 text-gray-700">Jenis Kelamin Ketua</label>
+                                        <Controller
+                                            name="jenis_kelamin"
+                                            control={control}
+                                            rules={{ required: "Jenis kelamin wajib diisi" }}
+                                            render={({ field }) => (
+                                                <select
+                                                    id="jenis_kelamin"
+                                                    {...field}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
+                                                    required
+                                                >
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="Laki-laki">Laki-laki</option>
+                                                    <option value="Perempuan">Perempuan</option>
+                                                </select>
+                                            )}
+                                        />
+                                        {errors.jenis_kelamin && <p className="text-xs text-red-500 mt-1">{errors.jenis_kelamin.message}</p>}
+                                    </div>
+
+                                    {/* Alamat Organisasi */}
+                                    <div>
+                                        <label htmlFor="alamat" className="block text-sm font-medium mb-1 text-gray-700">Alamat Organisasi</label>
+                                        <Controller
+                                            name="alamat"
+                                            control={control}
+                                            rules={{ required: "Alamat organisasi wajib diisi" }}
+                                            render={({ field }) => (
+                                                <textarea
+                                                    id="alamat"
+                                                    {...field}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
+                                                    required
+                                                    rows={3}
+                                                ></textarea>
+                                            )}
+                                        />
+                                        {errors.alamat && <p className="text-xs text-red-500 mt-1">{errors.alamat.message}</p>}
+                                    </div>
+
+                                    {/* Induk Organisasi */}
+                                    <FormInput
+                                        label="Induk Organisasi"
+                                        name="induk_organisasi"
+                                        control={control}
+                                        type="text"
+                                        placeholder="Contoh: Pencak Silat, Paguyuban, dll."
+                                        error={errors.induk_organisasi}
+                                        required={true}
+                                    />
+
+                                    {/* Jumlah Anggota */}
+                                    <div>
+                                        <label htmlFor="jumlah_anggota" className="block text-sm font-medium text-gray-700 mb-1">Jumlah Anggota</label>
+                                        <Controller
+                                            name="jumlah_anggota"
+                                            control={control}
+                                            rules={{
+                                                required: "Jumlah anggota wajib diisi",
+                                                validate: value => (parseInt(value) > 0) || "Jumlah anggota minimal 1"
+                                            }}
+                                            render={({ field }) => (
+                                                <input
+                                                    id="jumlah_anggota"
+                                                    {...field}
+                                                    type="number"
+                                                    min="1"
+                                                    required
+                                                    className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
+                                                    placeholder="Contoh: 10"
+                                                />
+                                            )}
+                                        />
+                                        {errors.jumlah_anggota && <p className="text-xs text-red-500 mt-1">{errors.jumlah_anggota.message}</p>}
+                                    </div>
+
+                                    {/* Keterangan (Optional) */}
+                                    <div>
+                                        <label htmlFor="keterangan" className="block text-sm font-medium mb-1 text-gray-700">Keterangan (Optional)</label>
+                                        <Controller
+                                            name="keterangan"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <textarea
+                                                    id="keterangan"
+                                                    {...field}
+                                                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 shadow-sm"
+                                                    rows={2}
+                                                ></textarea>
+                                            )}
+                                        />
+                                    </div>
+
+                                    {/* Navigation & Save Button Step 1 (MODIFIED) */}
+                                    <div className="flex gap-4 pt-4">
+                                        {/* Tombol Batal (sebelumnya Simpan Draft) */}
+                                        <button
+                                            type="button"
+                                            onClick={handleBatal} // Fungsi Batal
+                                            disabled={prosesSimpanStep1 || proses}
+                                            className="w-1/2 bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 transition duration-300 font-bold shadow-lg disabled:bg-red-300"
+                                        >
+                                            Batal
+                                        </button>
+
+                                        {/* Tombol Simpan & Lanjut (sebelumnya Lanjut Step 2) */}
+                                        <button
+                                            type="button"
+                                            onClick={nextStep} // nextStep akan memanggil saveStepOne internal
+                                            disabled={prosesSimpanStep1 || proses}
+                                            className="w-1/2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-bold shadow-lg disabled:bg-blue-300"
+                                        >
+                                            {/* Menambahkan Indikator Loading */}
+                                            {prosesSimpanStep1 ? (
+                                                <span className="flex items-center justify-center">
+                                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Menyimpan & Lanjut...
+                                                </span>
+                                            ) : 'Simpan & Lanjut ke Langkah 2 \u2192'}
+                                        </button>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-2 text-center">
+                                        *Data harus valid dan berhasil disimpan (draft) sebelum dapat melanjutkan ke Langkah 2.
+                                        {draftId && <span className="text-blue-600 font-medium block"> Draft ID: {draftId}</span>}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* MODIFIKASI BERAKHIR DI SINI */}
+                        </form>
+                    </main>
+                </div>
+            </>
+        );
+    } else {
+        return <PendaftaranOrganisasiForm initialDraftId={draftId}/>
+    }
 }
 
 // Komponen Pembantu untuk Step Indicator (Tidak Berubah)
