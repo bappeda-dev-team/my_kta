@@ -134,23 +134,65 @@ export default function PendaftaranOrganisasi() {
                 throw new Error(`Gagal menyimpan draft: ${errorData.message || response.statusText}`);
             }
 
+            if (!response.ok) {
+                let errorTitle = `Gagal menyimpan draft (Kode: ${response.status}): `;
+                let errorMessageDetail = 'Terjadi kesalahan tidak terduga.';
+
+                switch (response.status) {
+                    case 400:
+                        // Menangani 'nama tempat tanggal lahir wajib diisi'
+                        const errorResult400 = await response.json(); // Coba dapatkan pesan error dari body
+                        errorMessageDetail = errorResult400.message || "Data wajib (seperti nama, tempat, tanggal lahir) tidak lengkap.";
+                        break;
+                    case 401:
+                        // Menangani 'invalid token'
+                        errorMessageDetail = "Sesi telah berakhir atau token tidak valid. Silakan login kembali.";
+                        break;
+                    case 404:
+                        // Menangani 'salah user_id'
+                        errorMessageDetail = "User ID tidak ditemukan. Periksa konfigurasi pengguna.";
+                        break;
+                    case 409:
+                        // Menangani 'nomor induk yang dobel'
+                        errorMessageDetail = "Nomor Induk yang Anda masukkan sudah terdaftar/dobel.";
+                        break;
+                    case 500:
+                        // Menangani 'An unexpected runtime error occurred: Unexpected error occurred while saving'
+                        errorMessageDetail = "Kesalahan server internal. Proses penyimpanan gagal.";
+                        break;
+                    default:
+                        errorMessageDetail = `Status ${response.status} tidak diketahui.`;
+                }
+
+                const finalErrorMessage = errorTitle + errorMessageDetail;
+                setErrorMessage(finalErrorMessage);
+                console.error('API Error:', response.status, finalErrorMessage);
+                return false; // Menghentikan eksekusi dan mengembalikan false
+            }
+            // --- AKHIR BLOK PENANGANAN STATUS HTTP TAMBAHAN ---
+
+            // Jika response.ok (status 200-299), lanjutkan pemrosesan data
             const result = await response.json();
             // Asumsi: API mengembalikan ID pengajuan yang dibuat/diupdate
             if (result && result.data) {
-                console.log(result)
+                console.log(result);
                 // Jika 'result' ada dan 'result.data' ada, baru set state
                 setDraftId(result.data);
                 setStep2(true);
+                // Menggunakan nilai draftId yang baru saja di-set (atau menggunakan result.data)
+                setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${result.data ? '(Diperbarui)' : ''}`);
+                return true;
             } else {
                 // Opsional: Tangani kasus di mana ID tidak ditemukan, misalnya log error atau tampilkan pesan.
                 console.error("Gagal mendapatkan draftId dari respons API:", result);
-                // setDraftId(null); // Atur ke nilai default jika perlu
-            } setErrorMessage(`Draft Langkah 1 Berhasil Disimpan! ${draftId ? '(Diperbarui)' : ''}`);
-            return true;
+                setErrorMessage("Draft tersimpan, tetapi ID dokumen tidak ditemukan dalam respons.");
+                return false;
+            }
 
         } catch (error: any) {
-            console.error('Error saving draft:', error);
-            setErrorMessage(error.message || 'Terjadi kesalahan saat menyimpan draft. Coba lagi.');
+            // Penanganan kesalahan Jaringan (mis. koneksi terputus) atau kesalahan parsing JSON
+            console.error('Error saving draft (Catch Block):', error);
+            setErrorMessage(error.message || 'Terjadi kesalahan saat menyimpan draft. Periksa koneksi jaringan Anda.');
             return false;
         } finally {
             setProsesSimpanStep1(false);
@@ -498,7 +540,7 @@ export default function PendaftaranOrganisasi() {
             </>
         );
     } else {
-        return <PendaftaranOrganisasiForm initialDraftId={draftId}/>
+        return <PendaftaranOrganisasiForm initialDraftId={draftId} />
     }
 }
 

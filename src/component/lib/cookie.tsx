@@ -41,8 +41,14 @@ export const login = async (username: string, password: string): Promise<boolean
 
                 return false;
             }
-        } else if (data.statusCode === 400) {
+        } else if (data.statusCode === 401) {
             alert("Login Gagal")
+            return false;
+        } else if (data.statusCode === 404) {
+            alert("username atau password salah")
+            return false;
+        } else if (data.statusCode === 429) {
+            alert("Terlalu banyak percobaan login, silakan coba lagi nanti")
             return false;
         } else {
 
